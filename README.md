@@ -5,6 +5,7 @@ This project will explore user sentiments as it relates to climate change
 Issues
 
 Data Connection
+
 [] set up API to website
 
 [] figure out 'sentiments'/categorize data using lists that correspond to different feelings or attitudes and create binary columns indicating sentiments
