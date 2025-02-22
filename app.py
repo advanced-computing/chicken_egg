@@ -9,6 +9,7 @@ def load_data_from_file(file_path):
     data = pd.read_csv(file_path)
     return data
 
+# Need to change this to a map! Import folium 
 # Function to create a plot based on data types
 def create_plot(data, x_column, y_column):
     fig, ax = plt.subplots()
@@ -18,6 +19,20 @@ def create_plot(data, x_column, y_column):
         sns.barplot(data=data, x=x_column, y=y_column, ax=ax)
     else:
         sns.lineplot(data=data, x=x_column, y=y_column, ax=ax)
+    return fig
+
+def create_time_series_plot(df1, df2, x_col, y_col1, y_col2, labels):
+    fig, ax = plt.subplots()
+
+    sns.lineplot(data=df1, x=x_col, y=y_col1, ax=ax, label=labels[0])
+    sns.lineplot(data=df2, x=x_col, y=y_col2, ax=ax, label=labels[1])
+
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Values")
+    ax.set_title("Time Series Comparison")
+    plt.xticks(rotation=45)
+    ax.legend()
+
     return fig
 
 # Streamlit app
@@ -32,7 +47,7 @@ def main():
 
     if page == "Bird Flu Data":
         # Load bird_flu.csv
-        data = load_data_from_file('bird_flu.csv')
+        data = load_data_from_file('bird_flu_final.csv')
         st.write("Data Preview:")
         st.write(data.head())
 
@@ -45,17 +60,28 @@ def main():
         st.pyplot(fig)
 
     elif page == "Egg Prices Data":
-        # Load egg_prices.csv
-        data = load_data_from_file('egg_prices.csv')
-        st.write("Data Preview:")
-        st.write(data.head())
+        # Load egg prices and CALM stock prices
+        price_data = load_data_from_file('egg_price_long.csv')
+        stock_data = load_data_from_file('stock_prices.csv')
+        
+        st.write("Egg Price Preview:")
+        st.write(price_data.head())
+        
+        st.write("Stock Price Preview:")
+        st.write(stock_data.head())
 
-        # Select columns for visualization
-        x_column = st.selectbox("Select the X-axis column", data.columns)
-        y_column = st.selectbox("Select the Y-axis column", data.columns)
+        # **Automatically detect and format the Date column (instead of user selection)**
+        for df in [price_data, stock_data]:
+            if "Date" in df.columns:
+                df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
+
+        y_column_egg = st.selectbox("Select the Y-axis column for Egg Prices", price_data.columns)
+        y_column_stock = st.selectbox("Select the Y-axis column for Stock Prices", stock_data.columns)
+        
+
 
         st.write("Data Visualization:")
-        fig = create_plot(data, x_column, y_column)
+        fig = create_time_series_plot(price_data, stock_data, "Date", y_column_egg, y_column_stock, ["Egg Prices", "Stock Prices"])
         st.pyplot(fig)
 
 if __name__ == "__main__":

@@ -130,9 +130,12 @@ bird_flu = pd.merge(bird_flu_clean, geodata,
 # Creating final version of df, ready to be used in geospatial representation
 # Flock size shows how many birds have died
 # lng and lat can be used to place on map
-bird_flu = bird_flu.drop(columns =['cfips', 'name'])
+bird_flu_final = bird_flu.drop(columns =['cfips', 'name'])
 print(bird_flu.columns)
 print(bird_flu)
+
+#Optional Save
+bird_flu_final.to_csv("bird_flu_final.csv", index=False)
 
 #%%
 
@@ -166,7 +169,7 @@ egg_price_long["Date"] = egg_price_long["Date"].dt.strftime("%m-%d-%Y")
 print(egg_price_long.head(10))
 
 # Optional Save
-#egg_price_long.to_csv("egg_price_long.csv", index=False)
+egg_price_long.to_csv("egg_price_long.csv", index=False)
 
 
 # %%
@@ -189,4 +192,4 @@ Please use 'Close/Last' and 'Date' columns for timeseries!
 print(stock_prices.columns)
 
 # Optional Save
-#stock_prices.to_csv('stock_prices.csv', index=False)
+stock_prices.to_csv('stock_prices.csv', index=False)
