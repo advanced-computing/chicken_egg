@@ -8,6 +8,7 @@ This project aims to explore the relation between the bird flu and Egg Price flu
 
 Issues
 
+
 Data
 [] set up API for Bird Flu data (clickable link) and National Agricultural Statistics Service (REST API)
 [] compile data onto two dataframes: one for time-series, national data and the other for geographical data
