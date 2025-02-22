@@ -1,4 +1,5 @@
 pandas
+geopandas
 jupyter
 numpy
 plotly
