@@ -28,6 +28,7 @@ Data
 
 # Visualizations
 [x] Create time series data plotting egg prices, stock price
+[] resample time series to monthly
 [] add second y axis for stock prices
 [] Create US map with bird flu (in progress) 
 [] Add filters that allow for different time periods on both graphs
