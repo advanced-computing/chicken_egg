@@ -92,6 +92,10 @@ def prep_egg_price_data(egg_price_data = 'egg_prices.csv'):
         '-01',
         format = '%Y-%b-%d'
     ).dt.strftime('%m-%d-%Y')
+    
+    #converting to datetime to work on shared axis
+    egg_price_long["Date"] = pd.to_datetime(egg_data["Date"], format="%m-%d-%Y")
+
 
     return egg_price_long
 

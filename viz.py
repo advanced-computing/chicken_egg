@@ -55,7 +55,7 @@ def create_time_series(
         secondary_y=True,
     )   
 
-    fig.update_xaxes(title_text=x_col)
+    fig.update_xaxes(title_text=x_col, tickformat = '%m-%d-%Y')
     fig.update_yaxes(title_text=labels[0], secondary_y=False)
     fig.update_yaxes(title_text=labels[1], secondary_y=True)
     
