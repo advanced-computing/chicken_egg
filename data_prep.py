@@ -93,8 +93,13 @@ def prep_egg_price_data(egg_price_data = 'egg_prices.csv'):
         format = '%Y-%b-%d'
     ).dt.strftime('%m-%d-%Y')
     
-    #converting to datetime to work on shared axis
+    #converting to datetime & setting as index to work w/ shared axis
     egg_price_long["Date"] = pd.to_datetime(egg_price_long["Date"], format="%m-%d-%Y")
+
+    
+    # Sort by date index
+    egg_price_long.set_index('Date', inplace=True)
+    egg_price_long.sort_index(inplace=True)
 
 
     return egg_price_long
@@ -121,5 +126,6 @@ def prep_stock_price_data(stock_price_data = 'cal_main_stock.csv'):
 
     # Taking average of weekly prices (is there another way that makes more sense?)
     stock_prices_weekly = stock_prices.resample('W').mean(numeric_only=True).reset_index()
+    stock_prices_weekly.sort_index(inplace=True)
     
     return stock_prices_weekly

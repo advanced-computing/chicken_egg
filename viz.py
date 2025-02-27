@@ -29,8 +29,7 @@ def create_geospatial(data, lat_col='lat', lon_col='lng', color_col='Flock Size'
     return fig
 
 def create_time_series(
-    df1, df2, 
-    x_col = 'Date', 
+    df1, df2,  
     y_col1 = 'Avg_Price', 
     y_col2 = 'Close/Last', 
     labels = ['Egg Price', 'Stock Price']):
@@ -45,17 +44,17 @@ def create_time_series(
     
     #time series for egg prices
     fig.add_trace(
-        go.Scatter(x=df1[x_col], y=df1[y_col1], name=labels[0]),
+        go.Scatter(x=df1.index, y=df1[y_col1], name=labels[0]),
         secondary_y=False,
     )
     
     #time series for stock prices
     fig.add_trace(
-        go.Scatter(x=df2[x_col], y=df2[y_col2], name=labels[1]),
+        go.Scatter(x=df2.index, y=df2[y_col2], name=labels[1]),
         secondary_y=True,
     )   
 
-    fig.update_xaxes(title_text=x_col, tickformat = '%m-%d-%Y')
+    fig.update_xaxes(title_text='Date', range=[pd.to_datetime("2015-01-01"), df1.index.max()], tickformat = '%m-%d-%Y')
     fig.update_yaxes(title_text=labels[0], secondary_y=False)
     fig.update_yaxes(title_text=labels[1], secondary_y=True)
     
