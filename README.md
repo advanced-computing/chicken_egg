@@ -10,15 +10,32 @@ Issues
 
 
 Data
-[] set up API for Bird Flu data (clickable link) and National Agricultural Statistics Service (REST API)
-[] compile data onto two dataframes: one for time-series, national data and the other for geographical data
-[] add geospatial data for visualizations
+[] Organize data into a folder? (Temporary until APIs ready, may not be worth it)
+[] set up API for Bird Flu data (clickable link)
+[] set up API for Cal-Main data (clickable link)
+[] set up API for egg prices from BLS (clickable link)
+[] set up API for National Agricultural Statistics Service (REST API) Keep? Integrate?
 [] find additional dataset for consumption that can be used to calculate demand elasticity over time at the national level
-[] contact Walmart as a proxy for localized egg prices. (Open to suggestions for this, having trouble sourcing local price data)
+[x] compile data onto two dataframes: one for time-series/national data and the other for geographical data
+[x] add geospatial data for visualizations
+[x] clean Cal-Main food price data
 
-Visualizations
-[] Create time series data plotting egg prices, stock price, and bird flu cases
-[] Create US map with bird flu 
+# Code Organization (what else can be refactored?)
+[x] seperate main for app
+[x] put streamlit functions into viz.py
+[x] put data cleaning functions into data_prep.py
+[] testing code 
+    - check for date column, lng, lat
+    - see if numbers are numerical
+    - check for invalid data values in cols
+[] test cases
+
+# Visualizations
+[x] Create time series data plotting egg prices, stock price
+[x] resample time series to monthly
+[x] add second y axis for stock prices
+[] fix x axis for the time series plot
+[x] Create US map with bird flu (modify to streamlit plot?) 
 [] Add filters that allow for different time periods on both graphs
 
 Other Considerations
