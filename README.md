@@ -22,7 +22,7 @@ Data
 # Code Organization (what else can be refactored?)
 [] seperate main for app
 [] put streamlit functions into visualization.py
-[] put data cleaning functions into cleaning.py
+[x] put data cleaning functions into cleaning.py
 [] testing code 
 [] test cases
 
