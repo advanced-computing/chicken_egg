@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 
-
 # This filepath will be used later for the National Ag. Stats Service API
 #file_path = "https://quickstats.nass.usda.gov/results/AE779404-2B32-375F-B3FE-F48335DE30EC"
 
@@ -106,10 +105,17 @@ def prep_stock_price_data(stock_price_data = 'cal_main_stock.csv'):
     stock_prices = pd.read_csv('cal_main_stock.csv')
     stock_prices['Date'] = pd.to_datetime(stock_prices['Date'], format = '%m/%d/%Y')
 
+    # Loops over each col to remove $ in stock prices
+    for col in stock_prices.columns:
+        if stock_prices[col].dtype == object:
+            if "$" in stock_prices[col].iloc[0]:
+                stock_prices[col] = stock_prices[col].str.replace('$', '', regex=False)
+                stock_prices[col] = pd.to_numeric(stock_prices[col])
+                    
     # Date set to index to resample
     stock_prices.set_index('Date', inplace=True)
 
     # Taking average of weekly prices (is there another way that makes more sense?)
-    stock_prices_weekly = stock_prices.resample('W').mean().reset_index()
+    stock_prices_weekly = stock_prices.resample('W').mean(numeric_only=True).reset_index()
     
     return stock_prices_weekly

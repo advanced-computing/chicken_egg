@@ -10,6 +10,7 @@ Issues
 
 
 Data
+[] Organize data into a folder? (Temporary until APIs ready, may not be worth it)
 [] set up API for Bird Flu data (clickable link)
 [] set up API for Cal-Main data (clickable link)
 [] set up API for egg prices from BLS (clickable link)
@@ -20,17 +21,21 @@ Data
 [x] clean Cal-Main food price data
 
 # Code Organization (what else can be refactored?)
-[] seperate main for app
-[] put streamlit functions into visualization.py
-[x] put data cleaning functions into cleaning.py
+[x] seperate main for app
+[x] put streamlit functions into viz.py
+[x] put data cleaning functions into data_prep.py
 [] testing code 
+    - check for date column, lng, lat
+    - see if numbers are numerical
+    - check for invalid data values in cols
 [] test cases
 
 # Visualizations
 [x] Create time series data plotting egg prices, stock price
-[] resample time series to monthly
-[] add second y axis for stock prices
-[] Create US map with bird flu (in progress) 
+[x] resample time series to monthly
+[x] add second y axis for stock prices
+[] fix x axis for the time series plot
+[x] Create US map with bird flu (modify to streamlit plot?) 
 [] Add filters that allow for different time periods on both graphs
 
 Other Considerations
