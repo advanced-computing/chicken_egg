@@ -1,6 +1,5 @@
 # Will test functions used in viz.py
-
-# Will test functions used in viz.pyimport pytest
+import pytest
 import pandas as pd
 from viz import create_geospatial, create_time_series
 
