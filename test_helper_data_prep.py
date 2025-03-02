@@ -1,6 +1,4 @@
-# test_data_prep_data.py
-
-import pandas as pd
+# creates data to be used in test_data_prep
 
 def create_stock_ex():
     '''
