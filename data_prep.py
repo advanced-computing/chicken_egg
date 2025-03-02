@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 
 # This filepath will be used later for the National Ag. Stats Service API
