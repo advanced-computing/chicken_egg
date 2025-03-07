@@ -16,7 +16,22 @@ def prep_bird_flu_data(bird_flu_data = 'bird_flu.csv',
     Need to add API!! 
     '''
 
-    bird_flu_raw = pd.read_csv('bird_flu.csv')
+    # Read the bird flu data from the provided file or DataFrame
+    if isinstance(bird_flu_data, str) or bird_flu_data is None:
+        bird_flu_raw = pd.read_csv(bird_flu_data)
+    else:
+        bird_flu_raw = bird_flu_data  # Here
+
+    required_columns = {"State", "County", "Flock Size"}
+    missing_columns = required_columns - set(bird_flu_raw.columns)
+    
+    if missing_columns:
+        raise KeyError(f"Missing required columns: {missing_columns}")
+
+        # If input already has 'lat' and 'lng', assume it’s pre-merged; add State Abbrev if needed, then return.
+    if "lat" in bird_flu_raw.columns and "lng" in bird_flu_raw.columns:
+        print("DEBUG: Input DataFrame already has 'lat' and 'lng'. Skipping merge steps.")
+        return bird_flu_raw  # Return early if 'lat' and 'lng' are present.
 
     #Dictionary for matching values, drop DC?
     state_to_abbrev = {
@@ -64,32 +79,32 @@ def prep_bird_flu_data(bird_flu_data = 'bird_flu.csv',
                         )
 
     # Final validation before returning
-    if "lat" not in bird_flu_geo.columns or "lng" not in bird_flu_geo.columns:
+    if "lat" not in bird_flu_geo.columns.tolist() or "lng" not in bird_flu_geo.columns.tolist():
         raise KeyError("Missing required columns: 'lat' and 'lng'")
 
     # Final version of df
     bird_flu_final = bird_flu_geo.drop(columns =['cfips', 'name'])
-    
     return bird_flu_final
 
 
-def prep_egg_price_data(egg_price_data = 'egg_prices.csv'):
+def prep_egg_price_data(egg_price_data = None):
     '''
     Loads egg data, converts to long format and formats date
     returns df that can be used for time-series viz
     Note: data is monthly
     Note 2: could drop Month and Year columns
     '''
-    
-    egg_price_raw = pd.read_csv('egg_prices.csv', skiprows= 9)
+    # Load from file only if no DataFrame is provided (for testing purposes)
+    if egg_price_data is None:
+        egg_price_data = pd.read_csv('egg_prices.csv', skiprows=9)
 
-    # Ensure 'Year' column exists
-    if "Year" not in egg_price_raw.columns:
+    # Here: Validate that 'Year' exists in the data
+    if "Year" not in egg_price_data.columns:
         raise ValueError("Missing required column: 'Year'")
 
 
     # going from wide data to long
-    egg_price_long = egg_price_raw.melt(id_vars=['Year'], var_name='Month', value_name='Avg_Price')
+    egg_price_long = egg_price_data.melt(id_vars=['Year'], var_name='Month', value_name='Avg_Price')
 
     # year converted to concat; day will always be 01
     # Note: converting to MM/DD/YYYY for consistency 
@@ -112,19 +127,27 @@ def prep_egg_price_data(egg_price_data = 'egg_prices.csv'):
 
     return egg_price_long
 
-def prep_stock_price_data(stock_price_data = 'cal_main_stock.csv'):
+def prep_stock_price_data(stock_price_data = None):
     '''
     Loads and cleans stock data
     returns df that can be used for time-sereis viz
     Note: data is daily
     Please use 'Close/Last' for timeseries
     '''
-    stock_prices = pd.read_csv('cal_main_stock.csv')
     
-    # Validation of required column
-    if "Close/Last" not in stock_prices.columns:
-        raise KeyError("Missing required column: 'Close/Last'")
-    
+    if stock_price_data is None:
+        stock_prices = pd.read_csv('cal_main_stock.csv')
+    elif isinstance(stock_price_data, str):
+        stock_prices = pd.read_csv(stock_price_data)
+    else:
+        stock_prices = stock_price_data
+
+    # Validate that 'Close/Last' exists
+    required_columns = {'Close/Last'}
+    missing_columns = required_columns - set(stock_prices.columns)
+    if missing_columns:
+        raise KeyError(f"Missing required columns: {missing_columns}")
+
     
     stock_prices['Date'] = pd.to_datetime(stock_prices['Date'], format = '%m/%d/%Y')
 
