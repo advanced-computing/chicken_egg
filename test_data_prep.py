@@ -8,6 +8,24 @@ from test_helper_data_prep import (
     create_bird_flu_ex,
 )
 
+
+@pytest.mark.parametrize(
+    "func, df, expected_exception",
+    [
+        (prep_stock_price_data, pd.DataFrame({"Open": [100, 101, 102]}), KeyError),  # Missing 'Close/Last'
+        (prep_egg_price_data, pd.DataFrame({"Price": [2.5, 3.0, 3.2]}), ValueError),  # Missing Date
+        (prep_bird_flu_data, pd.DataFrame({"Location": ["USA", "Canada"]}), KeyError),  # Missing 'lat' and 'lng'
+    ]
+)
+
+def test_prep_functions_raise_errors(func, df, expected_exception):
+    """
+    Test that prep functions raise expected exceptions when given invalid data.
+    """
+    with pytest.raises(expected_exception):
+        func(df)
+
+
 def test_stock_price_columns_numeric():
     """
     Test that prep_stock_price_data produces numeric columns (e.g., 'Close/Last').
