@@ -1,5 +1,5 @@
 # Will test functions used in viz.py
-import pytest
+import pytest # noqa: F401
 import pandas as pd
 from viz import create_geospatial, create_time_series
 
