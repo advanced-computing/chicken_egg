@@ -63,6 +63,10 @@ def prep_bird_flu_data(bird_flu_data = 'bird_flu.csv',
                         how = 'left'
                         )
 
+    # Final validation before returning
+    if "lat" not in bird_flu_geo.columns or "lng" not in bird_flu_geo.columns:
+        raise KeyError("Missing required columns: 'lat' and 'lng'")
+
     # Final version of df
     bird_flu_final = bird_flu_geo.drop(columns =['cfips', 'name'])
     
@@ -78,6 +82,11 @@ def prep_egg_price_data(egg_price_data = 'egg_prices.csv'):
     '''
     
     egg_price_raw = pd.read_csv('egg_prices.csv', skiprows= 9)
+
+    # Ensure 'Year' column exists
+    if "Year" not in egg_price_raw.columns:
+        raise ValueError("Missing required column: 'Year'")
+
 
     # going from wide data to long
     egg_price_long = egg_price_raw.melt(id_vars=['Year'], var_name='Month', value_name='Avg_Price')
@@ -111,6 +120,12 @@ def prep_stock_price_data(stock_price_data = 'cal_main_stock.csv'):
     Please use 'Close/Last' for timeseries
     '''
     stock_prices = pd.read_csv('cal_main_stock.csv')
+    
+    # Validation of required column
+    if "Close/Last" not in stock_prices.columns:
+        raise KeyError("Missing required column: 'Close/Last'")
+    
+    
     stock_prices['Date'] = pd.to_datetime(stock_prices['Date'], format = '%m/%d/%Y')
 
     # Loops over each col to remove $ in stock prices
