@@ -13,17 +13,22 @@ from test_helper_data_prep import (
     "func, df, expected_exception",
     [
         (prep_stock_price_data, pd.DataFrame({"Open": [100, 101, 102]}), KeyError),  # Missing 'Close/Last'
-        (prep_egg_price_data, pd.DataFrame({"Price": [2.5, 3.0, 3.2]}), ValueError),  # Missing Date
-        (prep_bird_flu_data, pd.DataFrame({"Location": ["USA", "Canada"]}), KeyError),  # Missing 'lat' and 'lng'
+        (prep_egg_price_data, pd.DataFrame({"Price": [2.5, 3.0, 3.2]}), ValueError),  # Missing 'Year'
+        (prep_bird_flu_data, pd.DataFrame({"Flock Size": [10, 20]}), KeyError),  # Missing 'State'
     ]
 )
-
 def test_prep_functions_raise_errors(func, df, expected_exception):
-    """
-    Test that prep functions raise expected exceptions when given invalid data.
-    """
+    print("\n================ DEBUG INFO =================")
+    print(f"Testing function: {func.__name__}")
+    print("Expected exception:", expected_exception)
+    print("Input DataFrame:")
+    print(df)
+    print("=============================================")
+    
+    
     with pytest.raises(expected_exception):
         func(df)
+
 
 
 def test_stock_price_columns_numeric():
