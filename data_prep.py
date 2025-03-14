@@ -4,6 +4,73 @@ import pandas as pd
 # This filepath will be used later for the National Ag. Stats Service API
 #file_path = "https://quickstats.nass.usda.gov/results/AE779404-2B32-375F-B3FE-F48335DE30EC"
 
+def prep_wild_bird_data(wild_bird_data = 'wild_birds.csv',
+                          fips = 'state_and_county_fips_master.csv',
+                          geolocators = 'cfips_location.csv'):
+    """
+    Cleans wild bird data and adds geospatial data.
+    Returns a df with a 'lat' and 'lng' column for mapping.
+    """
+    # Load the wild bird data
+    wild_bird_data = pd.read_csv(wild_bird_data)
+
+    # Ensure that required columns exist
+    required_columns = {"State", "County"}
+    missing_columns = required_columns - set(wild_bird_data.columns)
+    if missing_columns:
+        raise KeyError(f"Missing required columns: {missing_columns}")
+
+    # Map state names to their abbreviations
+    state_to_abbrev = {
+        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+        "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+        "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA",
+        "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+        "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
+        "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH",
+        "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY", "North Carolina": "NC",
+        "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA",
+        "Rhode Island": "RI", "South Carolina": "SC", "South Dakota": "SD", "Tennessee": "TN",
+        "Texas": "TX", "Utah": "UT", "Vermont": "VT", "Virginia": "VA", "Washington": "WA",
+        "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY", "District of Columbia": "DC",
+    }
+    wild_bird_data['State Abbrev'] = wild_bird_data['State'].map(state_to_abbrev)
+
+    # Load FIPS data for county matching
+    fips_data = pd.read_csv(fips)
+    # Clean county names by removing "County", "Borough", or "Parish"
+    fips_data['name'] = fips_data['name'].str.replace(r' County| Borough| Parish', '', regex=True).str.strip()
+    fips_data['fips'] = fips_data['fips'].astype(str)
+
+    # Merge wild bird data with FIPS codes using County and State Abbrev
+    wild_bird_fips = pd.merge(
+        wild_bird_data,
+        fips_data,
+        left_on=['County', 'State Abbrev'],
+        right_on=['name', 'state'],
+        how='left'
+    ).drop(columns=['name', 'state'])
+
+    # Load geolocation data
+    geodata = pd.read_csv(geolocators)
+    geodata['cfips'] = geodata['cfips'].astype(str)
+
+    # Merge to add latitude and longitude using the FIPS code
+    wild_bird_geo = pd.merge(
+        wild_bird_fips,
+        geodata,
+        left_on='fips',
+        right_on='cfips',
+        how='left'
+    ).drop(columns=['cfips', 'name'])
+
+    # Validate that the resulting DataFrame contains 'lat' and 'lng'
+    if "lat" not in wild_bird_geo.columns.tolist() or "lng" not in wild_bird_geo.columns.tolist():
+        raise KeyError("Missing required columns: 'lat' and 'lng'")
+
+    return wild_bird_geo
+
+
 
 def prep_bird_flu_data(bird_flu_data = 'bird_flu.csv',
                           fips = 'state_and_county_fips_master.csv',
@@ -161,8 +228,5 @@ def prep_stock_price_data(stock_price_data = None):
     # Date set to index to resample
     stock_prices.set_index('Date', inplace=True)
 
-    # Taking average of weekly prices (is there another way that makes more sense?)
-    stock_prices_weekly = stock_prices.resample('W').mean(numeric_only=True).reset_index()
-    stock_prices_weekly.sort_index(inplace=True)
     
-    return stock_prices_weekly
+    return stock_prices

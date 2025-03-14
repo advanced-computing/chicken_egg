@@ -55,6 +55,8 @@ Data
 [] move streamlit functions to seperate module
 [] create new module for adding geospatial data
 [] update test_helper_viz.py with examples?
+[] fix references in prep_bird_data
+[] Write test cases for visualizations and prep_wild_bird_data()
 
 # Visualizations
 [] Add st.metric
@@ -70,6 +72,10 @@ Data
 [] Add slider that allow for different time periods on both graphs
 [] add additional stock data to X axis
 [] add additional layers to map data
+    [x] created separate map for now, may try merging into one df later
+[] fix the latest date detected column to take the column as datetime and return the latest date
+    - currently it does a string comparison
+[] What other elements to add to map?
 
 Other Considerations
 [] Which states are key egg producing states
