@@ -1,19 +1,19 @@
 import streamlit as st
-from data_prep import prep_bird_flu_data, prep_egg_price_data, prep_stock_price_data
+from data_prep import prep_bird_flu_data, prep_egg_price_data, prep_stock_price_data, prep_wild_bird_data
 from viz import create_geospatial, create_time_series
 
 def main():
     st.title("Data Visualization App")
-    st.sidebar.title("Contributors")
-    st.sidebar.write("Arnav Sahai")
-    st.sidebar.write("Fred Lee")
+    st.markdown("### Contributors")
+    st.write("Arnav Sahai")
+    st.write("Fred Lee")
 
     # Page selection
-    page = st.sidebar.selectbox("Choose a page", ["Project Proposal", "Bird Flu Data", "Egg Prices Data"])
+    page = st.selectbox("Choose a page", ["Project Proposal", "Bird Flu Data", "Egg Prices Data"])
 
     if page == "Project Proposal":
         
-        st.image("rooster.jpg", caption="What came first, the chicken or the egg?", use_column_width=True)
+        st.image("rooster.jpg", caption="What came first, the chicken or the egg?", use_container_width=True)
 
         st.header("Project Proposal")
         st.markdown("# Overview")
@@ -45,14 +45,37 @@ def main():
 
 
     elif page == "Bird Flu Data":
-        # Imports cleaned bird_flu. Still not set up with API
+        # loads geospatial data
+        wild_bird_geo = prep_wild_bird_data()
         bird_data = prep_bird_flu_data()
-        st.write("Bird Flu Data Head:")
-        st.write(bird_data.head())
+        
+       # st.write("Commercial Bird Flu Data:")
+       # st.write(bird_data.head())
+       # st.write("Wild Bird Flu Data:")
+       # st.write(wild_bird_geo.head())
+        
+        total_chicken_deaths = bird_data['Flock Size'].sum()
+        total_wild_bird_infections = len(wild_bird_geo)     
+        latest_date_str = wild_bird_geo['Date Detected'].max()
+          
+        
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Cumulative Chicken Deaths", total_chicken_deaths)
+
+        with col2:
+            st.metric("Total Wild Bird Infections", total_wild_bird_infections)
+        
+        with col3:
+            st.metric("Latest Wild Bird Detection", latest_date_str)
 
         # Create and display a geospatial plot using viz.py function
-        fig = create_geospatial(bird_data)
-        st.plotly_chart(fig)
+        fig_bird_flu = create_geospatial(bird_data)
+        st.plotly_chart(fig_bird_flu, use_container_width=True)
+        
+        fig_wild_bird = create_geospatial(wild_bird_geo)
+        st.plotly_chart(fig_wild_bird, use_container_width=True)
 
     elif page == "Egg Prices Data":
         # Prepare egg prices and stock prices data using data_prep.py functions
