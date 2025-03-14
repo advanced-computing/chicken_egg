@@ -24,7 +24,7 @@ def main():
         st.markdown("""
         1. **What is the relationship between the increase of bird flu outbreaks and increases in Grade A egg prices? Is there a time lag?**
         2. **How does the stock price of Cal-Maine Foods (the largest egg company in the USA) respond to bird flu outbreaks?**
-        3. **What areas are at risk based on the integration of wild bird and commercial flock data?** *(Updated from human infection data)*
+        3. **What areas are at risk based on the integration of wild bird and commercial flock data?** *(Updated from wild bird infection data)*
         4. **How are non-caged egg producers such as Vital Farms affected by egg prices and bird flu outbreaks?** *(New question)*
         5. **How is the largest processor of value-added eggs, Michael Foods, affected by egg prices and bird flu outbreaks?** *(New question)*
         """)
@@ -32,8 +32,11 @@ def main():
         st.markdown("## Current Insights")
         st.markdown("""
         - **Positive correlation:** Cal-Maine’s stock prices show a positive correlation with egg prices and bird flu incidents.
-        - **Lag Effect:** A **2-3 month time lag** is observed between bird flu outbreaks and the subsequent rise in egg prices.
+        - **Mixed effect on cage free chickens:** Vital Farm's profits took a big hit during the first outbreak in 2022, but saw huge increases in 2024
+        - **Low effect on egg substitutes:** Post Holdings does not have a strong correlation with egg prices, but they did increase substantially post 2023 
+        - **Lag Effect:** There seems to be a negligable lag between bird flu outbreaks and the subsequent rise in egg prices.
         - **Geospatial Concentration:** The highest losses in poultry (gross number) have been recorded in **California, Oregon, and Utah**, indicating these states face a higher risk of cross infection.
+        - ** Regional Concentration:** There is one big center of infections near the intersection of **Nebraska, South Dakota, Iowa, and Wisconsin**
         """)
         
         st.markdown("## Future Directions")
@@ -80,18 +83,40 @@ def main():
     elif page == "Egg Prices Data":
         # Prepare egg prices and stock prices data using data_prep.py functions
         egg_data = prep_egg_price_data()
-        stock_data = prep_stock_price_data()
         
-        st.write("Egg Price Data Preview:")
-        st.write(egg_data.head())
-        st.write("Stock Price Data Preview:")
-        st.write(stock_data.head())
+        stock_option = st.selectbox(
+            'Select Stock to Compare Against Egg Prices',
+            options=['Cal-Maine', 'Post Holdings', 'Vital Farms']
+        )
+        
+        st.markdown("""
+            - **Cal-Maine** Largest egg producer in the US accounting for 20 percent of total production
+            - **Post Holdings** Owns Michael Foods, largest producer of value-added egg products (liquid/precooked eggs)
+            - **Vital Farms** Specializes in pasture raised eggs, leading brand in specialty eggs and 19th overall in US
+                    """)
+        
+        # Map the selection to the corresponding file path
+        stock_file_map = {
+            "Cal-Maine": "CALM_prices.csv",
+            "Post Holdings": "POST_prices.csv",
+            "Vital Farms": "VITL_prices.csv"
+        }
+        
+        selected_stock_data = prep_stock_price_data(stock_file_map[stock_option])  
+        
+        ## Arnav add st.metrics here for latest egg and stock prices  
+        
+        # Commenting out. Can be used for validation if needed    
+        # st.write("Egg Price Data Preview:")
+        # st.write(egg_data.head())
+        # st.write("Stock Price Data Preview:")
+        # st.write(selected_stock_data.head())
         
         # Create and display a dual y-axis time series plot using viz.py function.
         # Default parameters assume egg_data has 'Date' and 'Avg_Price',
         # and stock_data has 'Date' and 'Close/Last'
-        fig = create_time_series(egg_data, stock_data)
-        st.plotly_chart(fig)
+        fig = create_time_series(egg_data, selected_stock_data)
+        st.plotly_chart(fig, use_container_width=True)
 
 if __name__ == "__main__":
     main()
