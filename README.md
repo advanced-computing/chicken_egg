@@ -52,6 +52,8 @@ Data
     - see if numbers are numerical
     - check for invalid data values in cols
 [x] test cases
+[] move streamlit functions to seperate module
+[] create new module for adding geospatial data
 [] update test_helper_viz.py with examples?
 
 # Visualizations
