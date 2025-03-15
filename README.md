@@ -57,6 +57,7 @@ Data
 [] update test_helper_viz.py with examples?
 [] fix references in prep_bird_data
 [] Write test cases for visualizations and prep_wild_bird_data()
+[] refactor prep_stock_data to work with validation and csv file inputs (or wait until database?)
 
 # Visualizations
 [] Add st.metric
