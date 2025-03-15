@@ -202,10 +202,16 @@ def prep_stock_price_data(stock_price_data = None):
     Please use 'Close/Last' for timeseries
     '''
     
+    # Fix this later
     if stock_price_data is None:
         stock_prices = pd.read_csv('cal_main_stock.csv')
     elif isinstance(stock_price_data, str):
         stock_prices = pd.read_csv(stock_price_data)
+        # Choose the appropriate reader based on file extension.
+        if stock_price_data.lower().endswith('.csv'):
+            stock_prices = pd.read_csv(stock_price_data)
+        else:
+            raise ValueError("Unsupported file type. Please provide a CSV or Excel file.")
     else:
         stock_prices = stock_price_data
 
