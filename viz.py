@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def create_geospatial(data, lat_col='lat', lon_col='lng', color_col='Flock Size'):
+def create_geospatial(data, lat_col='lat', lon_col='lng', color_col=None, size_col=None):
     '''
     Creates a geospatial scatter plot using Plotly Express.
     Flock size is the number of birds that died at each location
@@ -14,6 +14,12 @@ def create_geospatial(data, lat_col='lat', lon_col='lng', color_col='Flock Size'
     if lat_col not in data.columns or lon_col not in data.columns:
         raise ValueError("missing geospatial data :(")
     
+    if color_col is None:
+        if 'Flock Size' in data.columns:
+            color_col = 'Flock Size'
+        else:
+            color_col = 'Bird Species'
+                    
     fig = px.scatter_mapbox(
         data,
         lat=lat_col,
