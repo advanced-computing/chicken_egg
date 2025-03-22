@@ -105,12 +105,26 @@ def main():
         selected_stock_data = prep_stock_price_data(stock_file_map[stock_option])  
         
         ## Arnav add st.metrics here for latest egg and stock prices  
+
+        # Extract the latest egg price and stock price
+        latest_egg_price = egg_data['Avg_Price'].iloc[-1]
+        latest_stock_price = selected_stock_data['Close/Last'].iloc[-1]
+
+        # Display the metrics
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("Current Egg Price", f"${latest_egg_price:.2f}")
+
+        with col2:
+            st.metric("Current Stock Price", f"${latest_stock_price:.2f}")
+
         
         # Commenting out. Can be used for validation if needed    
-        # st.write("Egg Price Data Preview:")
-        # st.write(egg_data.head())
-        # st.write("Stock Price Data Preview:")
-        # st.write(selected_stock_data.head())
+        st.write("Egg Price Data Preview:")
+        st.write(egg_data.head())
+        st.write("Stock Price Data Preview:")
+        st.write(selected_stock_data.head())
         
         # Create and display a dual y-axis time series plot using viz.py function.
         # Default parameters assume egg_data has 'Date' and 'Avg_Price',
