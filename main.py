@@ -121,10 +121,10 @@ def main():
 
         
         # Commenting out. Can be used for validation if needed    
-        st.write("Egg Price Data Preview:")
-        st.write(egg_data.head())
-        st.write("Stock Price Data Preview:")
-        st.write(selected_stock_data.head())
+        #st.write("Egg Price Data Preview:")
+        #st.write(egg_data.head())
+        #st.write("Stock Price Data Preview:")
+        #st.write(selected_stock_data.head())
         
         # Create and display a dual y-axis time series plot using viz.py function.
         # Default parameters assume egg_data has 'Date' and 'Avg_Price',
