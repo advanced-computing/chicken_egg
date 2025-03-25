@@ -16,7 +16,7 @@ from app_modules.functions_app import (
 
 # === TAB 1 ===
 def render_tab1_project_proposal():
-    st.image("app_modules/rooster.jpg", caption="What came first, the chicken or the egg?", use_container_width=True)
+    st.image("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_modules/rooster.jpg", caption="What came first, the chicken or the egg?", use_container_width=True)
 
     st.header("Project Proposal")
     st.markdown("# Overview")
@@ -35,11 +35,11 @@ def render_tab1_project_proposal():
 # === TAB 2 ===
 def render_tab2_bird_flu():
     wild_bird_geo = prep_wild_bird_data(
-        wild_bird_data='app_data/prep_data/wild_birds.csv',
-        fips='app_data/prep_data/state_and_county_fips_master.csv',
-        geolocators='app_data/prep_data/cfips_location.csv'
+        wild_bird_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/wild_birds.csv',
+        fips='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/state_and_county_fips_master.csv',
+        geolocators='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/cfips_location.csv'
     )
-    bird_data = prep_bird_flu_data('app_data/prep_data/bird_flu.csv')
+    bird_data = prep_bird_flu_data('https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/bird_flu.csv')
 
     total_chicken_deaths = bird_data['Flock Size'].sum()
     total_wild_bird_infections = len(wild_bird_geo)
@@ -58,7 +58,7 @@ def render_tab2_bird_flu():
 
 # === TAB 3 ===
 def render_tab3_egg_stocks():
-    egg_data = prep_egg_price_data('app_data/egg_price_monthly.csv')
+    egg_data = prep_egg_price_data('https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv')
 
     stock_option = st.selectbox(
         'Select Stock to Compare Against Egg Prices',
