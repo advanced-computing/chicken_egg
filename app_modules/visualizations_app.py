@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 import json
+import requests
 
 # === 1. EGG PRICE vs STOCK PRICE TIME SERIES ===
 # === 1. EGG PRICE vs STOCK PRICE TIME SERIES ===
@@ -43,7 +44,7 @@ def show_price_comparison(egg_df, stock_df, stock_name="Selected Stock"):
 
 # === 2. AVIAN FLU OUTBREAK TRENDS ===
 def show_bird_flu_trends():
-    flu_df = pd.read_csv("app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
+    flu_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
     flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
 
     # Aggregate daily flock sizes
@@ -61,13 +62,13 @@ def show_bird_flu_trends():
 
 # === 3. COMBINED OVERVIEW ===
 def show_combined_dashboard():
-    egg_df = pd.read_csv("app_data/egg_price_monthly.csv", parse_dates=["Date"])
+    egg_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv", parse_dates=["Date"])
 
-    calm_df = pd.read_csv("app_data/calmaine_prices_daily.csv", parse_dates=["Date"])
+    calm_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/calmaine_prices_daily.csv", parse_dates=["Date"])
     for col in ["Close/Last", "Open", "High", "Low"]:
         calm_df[col] = calm_df[col].replace('[\$,]', '', regex=True).astype(float)
 
-    flu_df = pd.read_csv("app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
+    flu_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
     flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
 
     flu_df = flu_df.groupby("Date")["Flock Size"].sum().reset_index()
@@ -104,12 +105,13 @@ def show_wild_bird_map(wild_bird_geo, bird_data):
     🟥 State color = chicken deaths (Flock Size)
     🔴 Bubbles = wild bird infections (Wild Count)
     Data accumulates progressively from Jan 2022.
-    Requires app_data/us_states.geojson
+    Requires https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/us_states.geojson
     """
 
     # Cargar el GeoJSON de estados
-    with open("app_data/us_states.geojson", "r") as f:
-        geojson = json.load(f)
+    url = "https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/us_states.geojson"
+    response = requests.get(url)
+    geojson = response.json()
 
     # Normalizar nombres de estado en tus datos
     wild_df = wild_bird_geo.copy()

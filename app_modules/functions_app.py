@@ -4,9 +4,10 @@ import pandas as pd
 # This filepath will be used later for the National Ag. Stats Service API
 #file_path = "https://quickstats.nass.usda.gov/results/AE779404-2B32-375F-B3FE-F48335DE30EC"
 
-def prep_wild_bird_data(wild_bird_data = 'app_data/prep_data/wild_birds.csv',
-                          fips = 'app_data/prep_data/state_and_county_fips_master.csv',
-                          geolocators = 'app_data/prep_data/cfips_location.csv'):
+def prep_wild_bird_data(
+    wild_bird_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/wild_birds.csv',
+    fips='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/state_and_county_fips_master.csv',
+    geolocators='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/cfips_location.csv'):
     """
     Cleans wild bird data and adds geospatial data.
     Returns a df with a 'lat' and 'lng' column for mapping.
@@ -72,9 +73,9 @@ def prep_wild_bird_data(wild_bird_data = 'app_data/prep_data/wild_birds.csv',
 
 
 
-def prep_bird_flu_data(bird_flu_data = 'app_data/prep_data/bird_flu.csv',
-                          fips = 'app_data/prep_data/state_and_county_fips_master.csv',
-                          geolocators = 'app_data/prep_data/cfips_location.csv'):
+def prep_bird_flu_data(bird_flu_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/bird_flu.csv',
+    fips='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/state_and_county_fips_master.csv',
+    geolocators='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/cfips_location.csv'):
     '''
     Loads and cleans bird flu data
     Returns df with geospatial indicators derived from fips
@@ -153,7 +154,7 @@ def prep_bird_flu_data(bird_flu_data = 'app_data/prep_data/bird_flu.csv',
     bird_flu_final = bird_flu_geo.drop(columns =['cfips', 'name'])
     return bird_flu_final
 
-def prep_egg_price_data(egg_price_data='app_data/egg_price_monthly.csv'):
+def prep_egg_price_data(egg_price_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv'):
     """
     Loads preformatted egg price data (monthly), parses 'Date' column,
     and returns a DataFrame ready for time series visualization.
@@ -182,7 +183,7 @@ def prep_stock_price_data(stock_price_data = None):
     
     # Fix this later
     if stock_price_data is None:
-        stock_prices = pd.read_csv('app_data/calmaine_prices_daily.csv')
+        stock_price_data = 'https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/calmaine_prices_daily.csv'
     elif isinstance(stock_price_data, str):
         stock_prices = pd.read_csv(stock_price_data)
         # Choose the appropriate reader based on file extension.
