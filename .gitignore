@@ -199,8 +199,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# Secret key for Google Cloud
+# Secret key for Google Cloud; putting both to be safe
 service_account.json
+.streamlit/secrets.toml
 
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,python
