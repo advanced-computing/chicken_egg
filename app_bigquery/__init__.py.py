@@ -1,5 +1,5 @@
 # upload_to_bigquery.py
-### Ponerlo en inglés
+#
 
 import os
 import pandas as pd

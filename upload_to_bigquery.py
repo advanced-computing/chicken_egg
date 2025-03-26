@@ -1,5 +1,5 @@
 # upload_to_bigquery.py
-
+# 
 import os
 # Path set to Google Cloud Account
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service_account.json"
