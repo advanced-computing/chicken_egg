@@ -199,4 +199,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Secret key for Google Cloud
+service_account.json
+
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,python
