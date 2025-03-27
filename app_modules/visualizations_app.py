@@ -5,11 +5,16 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import numpy as np
-import json
 import requests
+from .functions_app import (
+    prep_bird_flu_data,
+    prep_wild_bird_data,
+    prep_egg_price_data,
+    prep_stock_price_data,
+)
 
-# === 1. EGG PRICE vs STOCK PRICE TIME SERIES ===
+
+
 # === 1. EGG PRICE vs STOCK PRICE TIME SERIES ===
 def show_price_comparison(egg_df, stock_df, stock_name="Selected Stock"):
     """
@@ -27,7 +32,7 @@ def show_price_comparison(egg_df, stock_df, stock_name="Selected Stock"):
     )
 
     fig.add_trace(
-        go.Scatter(x=stock_df["Date"], y=stock_df["Close/Last"], name=f"{stock_name} Stock Price"),
+        go.Scatter(x=stock_df["Date"], y=stock_df["Close_Last"], name=f"{stock_name} Stock Price"),
         secondary_y=True,
     )
 
@@ -44,7 +49,7 @@ def show_price_comparison(egg_df, stock_df, stock_name="Selected Stock"):
 
 # === 2. AVIAN FLU OUTBREAK TRENDS ===
 def show_bird_flu_trends():
-    flu_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
+    flu_df = prep_bird_flu_data('bird_flu')
     flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
 
     # Aggregate daily flock sizes
@@ -54,7 +59,7 @@ def show_bird_flu_trends():
         daily,
         x="Date",
         y="Flock Size",
-        title="🦠 Daily Flock Deaths due to Avian Flu",
+        title="Daily Flock Deaths due to Avian Flu",
         labels={"Flock Size": "Number of Birds"},
     )
 
@@ -62,17 +67,20 @@ def show_bird_flu_trends():
 
 # === 3. COMBINED OVERVIEW ===
 def show_combined_dashboard():
-    egg_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv", parse_dates=["Date"])
-
-    calm_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/calmaine_prices_daily.csv", parse_dates=["Date"])
-    for col in ["Close/Last", "Open", "High", "Low"]:
+    
+    #Loading data
+    egg_df = prep_egg_price_data("egg_prices")
+    calm_df, _, _ = prep_stock_price_data("calmaine")
+    for col in ["Close_Last", "Open", "High", "Low"]:
         calm_df[col] = calm_df[col].replace('[\$,]', '', regex=True).astype(float)
-
-    flu_df = pd.read_csv("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/bird_flu_daily.csv", parse_dates=["Outbreak Date"])
+    flu_df = prep_bird_flu_data("bird_flu")
+    
+    #prepping birdflu
     flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
-
     flu_df = flu_df.groupby("Date")["Flock Size"].sum().reset_index()
     flu_df = flu_df.set_index("Date").resample("M").sum().reset_index()
+    
+    # resample stocks
     calm_df = calm_df.set_index("Date").resample("M").mean().reset_index()
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -83,12 +91,12 @@ def show_combined_dashboard():
     )
 
     fig.add_trace(
-        go.Scatter(x=calm_df["Date"], y=calm_df["Close/Last"], name="Cal-Maine Stock Price"),
+        go.Scatter(x=calm_df["Date"], y=calm_df["Close_Last"], name="Cal-Maine Stock Price"),
         secondary_y=True,
     )
 
     fig.update_layout(
-        title="📊 Bird Flu vs Cal-Maine Stock (Monthly Overview)",
+        title="Bird Flu vs Cal-Maine Stock (Monthly Overview)",
         xaxis_title="Date",
         barmode="overlay",
         height=550,
@@ -99,11 +107,11 @@ def show_combined_dashboard():
 
     st.plotly_chart(fig, use_container_width=True)
 
-def show_wild_bird_map(wild_bird_geo, bird_data):
+def show_wild_bird_map(wild_bird_df, bird_flu_df):
     """
     Displays a cumulative-progressive map:
-    🟥 State color = chicken deaths (Flock Size)
-    🔴 Bubbles = wild bird infections (Wild Count)
+    State color = chicken deaths (Sum of Flock Size)
+    Circles = wild bird infections (Sum of Wild Birds)
     Data accumulates progressively from Jan 2022.
     Requires https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/us_states.geojson
     """
@@ -114,8 +122,8 @@ def show_wild_bird_map(wild_bird_geo, bird_data):
     geojson = response.json()
 
     # Normalizar nombres de estado en tus datos
-    wild_df = wild_bird_geo.copy()
-    flock_df = bird_data.copy()
+    wild_df = wild_bird_df.copy()
+    flock_df = bird_flu_df.copy()
     wild_df["State"] = wild_df["State"].str.title()
     flock_df["State"] = flock_df["State"].str.title()
 
@@ -215,10 +223,10 @@ def show_wild_bird_map(wild_bird_geo, bird_data):
 
     # Descripción superior
     st.markdown("""
-    **🔎 Map Explanation**  
-    - 🟥 **State Color**: Number of chickens lost due to outbreaks (Flock Size)  
-    - 🔴 **Bubble Size**: Number of wild bird infections detected  
-    - 📈 Use the slider to view how both have progressed from Jan 2022 until now.
+    **Map Explanation**  
+    - **State Color**: Number of chickens lost due to outbreaks (Flock Size)  
+    - **Bubble Size**: Number of wild bird infections detected  
+    - Use the slider to view how both have progressed from Jan 2022 until now.
     """)
     
     st.plotly_chart(fig, use_container_width=True)
