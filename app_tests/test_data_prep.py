@@ -4,12 +4,14 @@ from io import StringIO
 from app_modules.functions_app import (
     prep_bird_flu_data,
     prep_egg_price_data,
-    prep_stock_price_data
+    prep_stock_price_data,
+    prep_wild_bird_data,  # Added import for prep_wild_bird_data
 )
 from app_tests.test_helper_data_prep import (
     create_stock_ex,
     create_egg_price_ex,
     create_bird_flu_ex,
+    create_wild_bird_ex,  # Added import for create_wild_bird_ex
 )
 
 @pytest.mark.parametrize(
@@ -18,6 +20,7 @@ from app_tests.test_helper_data_prep import (
         (prep_stock_price_data, pd.DataFrame({"Open": [100, 101, 102]}), KeyError),  # Missing 'Close/Last'
         (prep_egg_price_data, pd.DataFrame({"Price": [2.5, 3.0, 3.2]}), ValueError),  # Missing 'Year'
         (prep_bird_flu_data, pd.DataFrame({"Flock Size": [10, 20]}), KeyError),  # Missing 'State'
+        (prep_wild_bird_data, pd.DataFrame({"County": ["A", "B"]}), KeyError),  # Missing 'State'
     ]
 )
 def test_prep_functions_raise_errors(func, df, expected_exception):
@@ -51,3 +54,20 @@ def test_bird_flu_flock_size_is_numeric():
     bird_flu_df = pd.read_csv(StringIO(create_bird_flu_ex()))
     df = prep_bird_flu_data(bird_flu_df)
     assert pd.api.types.is_numeric_dtype(df["Flock Size"]), "Flock Size should be numeric."
+
+def test_wild_bird_data_has_lat_lng():
+    """
+    Test that prep_wild_bird_data returns a DataFrame with 'lat' and 'lng' columns.
+    """
+    wild_bird_df = pd.read_csv(StringIO(create_wild_bird_ex()))
+    df = prep_wild_bird_data(wild_bird_df)
+    assert "lat" in df.columns, "DataFrame must have 'lat' column."
+    assert "lng" in df.columns, "DataFrame must have 'lng' column."
+
+def test_wild_bird_data_missing_columns():
+    """
+    Test that prep_wild_bird_data raises an error if required columns are missing.
+    """
+    wild_bird_df = pd.DataFrame({"County": ["A", "B"]})  # Missing 'State'
+    with pytest.raises(KeyError):
+        prep_wild_bird_data(wild_bird_df)
