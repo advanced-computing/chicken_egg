@@ -5,7 +5,7 @@ from pandas.testing import assert_frame_equal
 
 # app_modules/test_visualizations_app.py
 
-from app_modules.visualizations_app import (
+from app_files.visualizations_app import (
     show_price_comparison,
     show_bird_flu_trends,
     show_combined_dashboard,

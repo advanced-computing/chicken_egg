@@ -1,13 +1,13 @@
 # app_modules/tabs_app.py
 
 import streamlit as st
-from app_modules.visualizations_app import (
+from app_files.visualizations_app import (
     show_price_comparison,
     show_bird_flu_trends,
     show_combined_dashboard,
     show_wild_bird_map
 )
-from app_modules.functions_app import (
+from app_files.functions_app import (
     prep_bird_flu_data,
     prep_egg_price_data,
     prep_stock_price_data,
