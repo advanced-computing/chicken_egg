@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from io import StringIO
-from data_prep import prep_bird_flu_data, prep_egg_price_data, prep_stock_price_data
+from app_modules.functions_app import prep_bird_flu_data, prep_egg_price_data, prep_stock_price_data
 from test_helper_data_prep import (
     create_stock_ex,
     create_egg_price_ex,
