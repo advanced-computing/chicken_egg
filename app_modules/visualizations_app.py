@@ -72,7 +72,7 @@ def show_combined_dashboard():
     egg_df = prep_egg_price_data("egg_prices")
     calm_df, _, _ = prep_stock_price_data("calmaine")
     for col in ["Close_Last", "Open", "High", "Low"]:
-        calm_df[col] = calm_df[col].replace('[\$,]', '', regex=True).astype(float)
+        calm_df[col] = calm_df[col].replace(r'[\$,]', '', regex=True).astype(float)
     flu_df = prep_bird_flu_data("bird_flu")
     
     #prepping birdflu
