@@ -26,3 +26,13 @@ def create_bird_flu_ex():
     return """State,County,Flock Size,lat,lng
 Alabama,Montgomery,1000,32.3668052,-86.2999689
 Georgia,Clarke,2000,33.9519347,-83.357567"""
+
+def create_wild_bird_ex():
+    """
+    Returns example similar to wild bird data
+    """
+    return """State,County,lat,lng
+Alabama,Montgomery,32.3668052,-86.2999689
+Georgia,Clarke,33.9519347,-83.357567
+Florida,Miami-Dade,25.7616798,-80.1917902
+"""

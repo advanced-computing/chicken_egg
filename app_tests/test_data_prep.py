@@ -1,11 +1,17 @@
 import pytest
 import pandas as pd
 from io import StringIO
-from app_modules.functions_app import prep_bird_flu_data, prep_egg_price_data, prep_stock_price_data
+from app_modules.functions_app import (
+    prep_bird_flu_data,
+    prep_egg_price_data,
+    prep_stock_price_data,
+    prep_wild_bird_data,
+)
 from test_helper_data_prep import (
     create_stock_ex,
     create_egg_price_ex,
     create_bird_flu_ex,
+    create_wild_bird_ex,
 )
 
 
@@ -25,10 +31,8 @@ def test_prep_functions_raise_errors(func, df, expected_exception):
     print(df)
     print("=============================================")
     
-    
     with pytest.raises(expected_exception):
         func(df)
-
 
 
 def test_stock_price_columns_numeric():
@@ -41,6 +45,7 @@ def test_stock_price_columns_numeric():
 
     assert pd.api.types.is_numeric_dtype(df["Close/Last"]), "Close/Last must be numeric."
 
+
 def test_egg_price_date_col_is_datetime():
     """
     Test that prep_egg_price_data sets the DataFrame index to a datetime.
@@ -51,6 +56,7 @@ def test_egg_price_date_col_is_datetime():
 
     assert isinstance(df.index, pd.DatetimeIndex), "Index should be a DatetimeIndex."
 
+
 def test_bird_flu_has_lat_lng():
     """
     Test that prep_bird_flu_data returns a DataFrame with 'lat' and 'lng' columns.
@@ -59,9 +65,9 @@ def test_bird_flu_has_lat_lng():
     
     df = prep_bird_flu_data(bird_flu_df)
 
-
     assert "lat" in df.columns, "DataFrame must have 'lat' column."
     assert "lng" in df.columns, "DataFrame must have 'lng' column."
+
 
 def test_bird_flu_flock_size_is_numeric():
     """
@@ -72,3 +78,25 @@ def test_bird_flu_flock_size_is_numeric():
     df = prep_bird_flu_data(bird_flu_df)
     
     assert pd.api.types.is_numeric_dtype(df["Flock Size"]), "Flock Size should be numeric."
+
+
+def test_wild_bird_data_has_lat_lng():
+    """
+    Test that prep_wild_bird_data returns a DataFrame with 'lat' and 'lng' columns.
+    """
+    wild_bird_df = pd.read_csv(StringIO(create_wild_bird_ex()))
+
+    df = prep_wild_bird_data(wild_bird_df)
+
+    assert "lat" in df.columns, "DataFrame must have 'lat' column."
+    assert "lng" in df.columns, "DataFrame must have 'lng' column."
+
+
+def test_wild_bird_data_missing_columns():
+    """
+    Test that prep_wild_bird_data raises an error if required columns are missing.
+    """
+    wild_bird_df = pd.DataFrame({"County": ["A", "B"]})  # Missing 'State'
+
+    with pytest.raises(KeyError):
+        prep_wild_bird_data(wild_bird_df)
