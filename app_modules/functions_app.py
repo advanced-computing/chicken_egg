@@ -1,6 +1,6 @@
 import pandas as pd
-from .helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
-from .query_gbq import query_table
+from app_modules.helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
+from app_modules.query_gbq import query_table
 from google.api_core.exceptions import GoogleAPIError
 
 
