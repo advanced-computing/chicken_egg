@@ -95,16 +95,12 @@ def render_tab1_project_proposal():
 
 # === TAB 2 ===
 def render_tab2_bird_flu():
-    wild_bird_geo = prep_wild_bird_data(
-        wild_bird_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/wild_birds.csv',
-        fips='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/state_and_county_fips_master.csv',
-        geolocators='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/cfips_location.csv'
-    )
-    bird_data = prep_bird_flu_data('https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/bird_flu.csv')
+    wild_bird_geo = prep_wild_bird_data("wild_birds")
+    bird_data = prep_bird_flu_data("bird_flu")
 
     total_chicken_deaths = bird_data['Flock Size'].sum()
     total_wild_bird_infections = len(wild_bird_geo)
-    latest_date_str = wild_bird_geo['Date Detected'].max()
+    latest_date_str = wild_bird_geo['Date Detected'].max().strftime('%B %d, %Y')
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Cumulative Chicken Deaths", f"{total_chicken_deaths:,}")
@@ -119,8 +115,7 @@ def render_tab2_bird_flu():
 
 # === TAB 3 ===
 def render_tab3_egg_stocks():
-    egg_data = prep_egg_price_data('https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv')
-
+    
     stock_option = st.selectbox(
         'Select Stock to Compare Against Egg Prices',
         options=['Cal-Maine', 'Post Holdings', 'Vital Farms']
@@ -132,14 +127,25 @@ def render_tab3_egg_stocks():
     - **Vital Farms** Pasture-raised eggs, leading specialty brand  
     """)
 
-    stock_file_map = {
-        "Cal-Maine": "app_data/calmaine_prices_daily.csv",
-        "Post Holdings": "app_data/post_prices_daily.csv",
-        "Vital Farms": "app_data/vitl_prices_daily.csv"
+    stock_table_map = {
+        "Cal-Maine": "calmaine",
+        "Post Holdings": "post",
+        "Vital Farms": "vitl"
     }
 
-    selected_stock_data = prep_stock_price_data(stock_file_map[stock_option])
-    show_price_comparison(egg_data, selected_stock_data, stock_name=stock_option)
+    # Big Query data load
+    egg_data = prep_egg_price_data('egg_prices')
+    
+    calmaine_df, vitl_df, post_df = prep_stock_price_data()
+    stock_dfs = {
+        "calmaine": calmaine_df,
+        "vitl": vitl_df,
+        "post": post_df
+    }
+    selected_stock_df = stock_dfs[stock_table_map[stock_option]]   
+
+
+    show_price_comparison(egg_data, selected_stock_df, stock_name=stock_option)
 
 # === TAB 4 ===
 def render_tab4_dashboard():

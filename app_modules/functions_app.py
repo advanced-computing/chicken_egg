@@ -1,19 +1,19 @@
 import pandas as pd
-from helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
-from query_gbq import query_table
+from .helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
+from .query_gbq import query_table
 from google.api_core.exceptions import GoogleAPIError
 
 
 # This filepath will be used later for the National Ag. Stats Service API
 #file_path = "https://quickstats.nass.usda.gov/results/AE779404-2B32-375F-B3FE-F48335DE30EC"
 
-def prep_wild_bird_data():
+def prep_wild_bird_data(table_name="wild_birds"):
     """
     Cleans wild bird data and adds geospatial data.
     Returns a df with a 'lat' and 'lng' column for mapping.
     """
     # Load the wild bird data
-    wild_bird_data = query_table("bird_flu")
+    wild_bird_data = query_table(table_name)
 
     # Ensure that required columns exist
     required_columns = {"State", "County"}
@@ -35,7 +35,8 @@ def prep_wild_bird_data():
 
 def prep_bird_flu_data(
     bird_flu_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/bird_flu.csv',
-    use_bigquery=True
+    use_bigquery=True,
+    table_name="bird_flu"
 ):
     '''
     Loads and cleans bird flu data
@@ -48,7 +49,7 @@ def prep_bird_flu_data(
     bird_flu_raw = None
     if use_bigquery:
         try:
-            bird_flu_raw = query_table("bird_flu")  # Table name must match BigQuery
+            bird_flu_raw = query_table(table_name)  # Table name must match BigQuery
             print("✅ Loaded bird flu data from BigQuery.")
         except GoogleAPIError as e:
             print(f"⚠️ BigQuery failed: {e}")
@@ -56,10 +57,11 @@ def prep_bird_flu_data(
             print(f"⚠️ Unknown error pulling from BigQuery: {e}")
 
     # Read the bird flu data from the provided file or DataFrame
-    if isinstance(bird_flu_data, str) or bird_flu_data is None:
-        bird_flu_raw = pd.read_csv(bird_flu_data)
-    else:
-        bird_flu_raw = bird_flu_data
+    if bird_flu_raw is None:
+        if isinstance(bird_flu_data, str) or bird_flu_data is None:
+            bird_flu_raw = pd.read_csv(bird_flu_data)
+        else:
+            bird_flu_raw = bird_flu_data
 
     required_columns = {"State", "County", "Flock Size"}
     missing_columns = required_columns - set(bird_flu_raw.columns)
@@ -82,14 +84,20 @@ def prep_bird_flu_data(
     # Final version of df
     return bird_flu_geo
 
-def prep_egg_price_data(egg_price_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv'):
+def prep_egg_price_data(
+    egg_price_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv',
+    use_bigquery=True,
+    table_name="egg_prices"
+    ):
     """
     Loads preformatted egg price data (monthly), parses 'Date' column,
     and returns a DataFrame ready for time series visualization.
     """
-    if egg_price_data is None:
+    
+    df = None
+    if use_bigquery:
         try:
-            df = query_table("egg_prices")
+            df = query_table(table_name)
             print("✅ Loaded egg price data from BigQuery.")
         except GoogleAPIError as e:
             print(f"⚠️ BigQuery failed: {e}")
@@ -106,7 +114,10 @@ def prep_egg_price_data(egg_price_data='https://raw.githubusercontent.com/advanc
 
     return df
 
-def prep_stock_price_data(stock_price_data = None):
+def prep_stock_price_data(
+    stock_price_data = None,
+    use_bigquery=True,
+    table_names=["calmaine", "vitl", "post"]):
     '''
     Loads and cleans stock data
     returns df that can be used for time-sereis viz
@@ -114,10 +125,10 @@ def prep_stock_price_data(stock_price_data = None):
     Please use 'Close/Last' for timeseries
     '''
 
-    stock_table_names = ["calmaine", "vitl", "post"]
+
     processed_dfs = {}
     
-    for name in stock_table_names:
+    for name in table_names:
         try:
             df = query_table(name)
             print(f"✅ Loaded stock price data for '{name}' from BigQuery.")
@@ -125,20 +136,14 @@ def prep_stock_price_data(stock_price_data = None):
             print(f"⚠️ BigQuery failed for '{name}': {e}")
             raise  
 
-    # Validate that 'Close/Last' exists
-        required_columns = {'Close/Last'}
+    # Validate that 'Close_Last' exists
+        required_columns = {'Close_Last'}
         missing_columns = required_columns - set(df.columns)
         if missing_columns:
             raise KeyError(f"Table '{name}' is missing required columns: {missing_columns}")
 
     
         df['Date'] = pd.to_datetime(df['Date'], format = '%m/%d/%Y')
-
-    # Loops over each col to remove $ in stock prices
-        for col in df.columns:
-            if df[col].dtype == object and "$" in str(df[col].iloc[0]):
-                    df[col] = df[col].str.replace('$', '', regex=False)
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
                     
     # Date set to index to resample
         df.sort_values('Date', inplace=True)
