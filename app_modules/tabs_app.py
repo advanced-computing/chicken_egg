@@ -1,5 +1,3 @@
-# app_modules/tabs_app.py
-
 import streamlit as st
 from app_modules.visualizations_app import (
     show_price_comparison,
@@ -16,21 +14,84 @@ from app_modules.functions_app import (
 
 # === TAB 1 ===
 def render_tab1_project_proposal():
-    st.image("https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_modules/rooster.jpg", caption="What came first, the chicken or the egg?", use_container_width=True)
+    st.image("app_modules/rooster.jpg", caption="What came first, the chicken or the egg?", use_container_width=True)
 
-    st.header("Project Proposal")
-    st.markdown("# Overview")
+    st.header("🔍 Revisiting the Proposal: Insights & Adjustments")
+    
+    st.markdown("## **Reflections on Chicken & Egg App Improvements**")
+    st.markdown("---")
+    
+    st.markdown("### 🗓️ **Team Review Milestone**")
     st.markdown("""
-    This project explores the relationship between bird flu outbreaks, egg price fluctuations, and the financial performance of key egg producers. 
-    Our analysis aims to address several research questions, including:
+    On **March 26, 2025**, the team finalized the architecture of the Chicken & Egg app.  
+    Key modules and data pipelines were reviewed to ensure performance, scalability, and clarity.
     """)
+
+    st.markdown("## 📌 **Key Adjustments & Solutions**")
+
+    st.markdown("### 🔹 **1. Centralized Data Structure**")
     st.markdown("""
-    1. **What is the relationship between the increase of bird flu outbreaks and increases in Grade A egg prices? Is there a time lag?**
-    2. **How does the stock price of Cal-Maine Foods (the largest egg company in the USA) respond to bird flu outbreaks?**
-    3. **What areas are at risk based on the integration of wild bird and commercial flock data?**
-    4. **How are non-caged egg producers such as Vital Farms affected by egg prices and bird flu outbreaks?**
-    5. **How is the largest processor of value-added eggs, Michael Foods, affected by egg prices and bird flu outbreaks?**
+    - **Issue:** Files were scattered and difficult to track.  
+    - ✅ **Solution:** Structured folders:  
+        - 📂 `app_data` for raw & prepared datasets  
+        - ⚙️ `app_modules` for visualization & data prep functions  
+        - ☁️ `app_bigquery` for upload logic  
     """)
+
+    st.markdown("### 🔹 **2. GitHub Data Integration**")
+    st.markdown("""
+    - **Issue:** Files were originally read only from local sources.  
+    - ✅ **Solution:** Updated paths to fetch data dynamically from GitHub or BigQuery when needed.
+    """)
+
+    st.markdown("### 🔹 **3. BigQuery Uploader Modules**")
+    st.markdown("""
+    - **Issue:** No cloud sync for preprocessed data.  
+    - ✅ **Solution:** Created `app_bigquery/` with:
+        - `upload_bird_flu.py`
+        - `upload_wild_birds.py`
+        - `upload_egg_prices.py`
+        - `upload_stock_prices.py`
+    """)
+
+    st.markdown("### 🔹 **4. New Data Prep Functions**")
+    st.markdown("""
+    - **Issue:** Legacy functions didn't support remote/cloud-based files.  
+    - ✅ **Solution:** Refactored `functions_app.py` to support flexible loading and tested outputs.
+    """)
+
+    st.markdown("### 🔹 **5. Modularization & Testing**")
+    st.markdown("""
+    - **Issue:** Testing and debugging was hard due to tight coupling of scripts.  
+    - ✅ **Solution:** Introduced:
+        - `app_tests/` for test scripts
+        - `app_modules/helper_modules/geodata.py` for geolocation logic
+    """)
+
+    st.markdown("### 🔹 **6. GeoJSON & Visualization Enhancements**")
+    st.markdown("""
+    - **Issue:** Mapping wild bird outbreaks lacked spatial context.  
+    - ✅ **Solution:** Integrated `us_states.geojson` and cleaned spatial joins.
+    """)
+
+    st.markdown("## 🛠️ **Technical Milestones**")
+
+    st.markdown("""
+    - 🧹 Data cleaned & uploaded to BigQuery  
+    - 📦 Modules refactored into reusable pipelines  
+    - 🧪 Unit tests in place for core logic  
+    - ☁️ Data now syncs between GitHub and BigQuery for scalable access
+    """)
+
+    st.markdown("## 📌 **Final Takeaways & Next Steps**")
+
+    st.markdown("""
+    1️⃣ **Cloud-first design**: BigQuery as single source of truth  
+    2️⃣ **Scalable architecture**: Code is modular, testable, and production-ready  
+    3️⃣ **Next:** Automate incremental uploads and expand visual dashboards with Streamlit  
+    """)
+
+    st.success("🚀 All changes have been integrated into the current app version.")
 
 # === TAB 2 ===
 def render_tab2_bird_flu():

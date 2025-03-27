@@ -11,7 +11,7 @@ from app_modules.tabs_app import (
 
 def main():
     apply_styles()
-    st.title("🐔 Chicken & Egg: Data Visualization App")
+    st.title("🐔 Chicken Economics: Unpacking Bird Flu, Egg Prices & Market Signals")
     st.markdown("### Contributors")
     st.write("Arnav Sahai")
     st.write("Fred Lee")
