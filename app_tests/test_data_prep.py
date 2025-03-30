@@ -51,3 +51,5 @@ def test_bird_flu_flock_size_is_numeric():
     bird_flu_df = pd.read_csv(StringIO(create_bird_flu_ex()))
     df = prep_bird_flu_data(bird_flu_df)
     assert pd.api.types.is_numeric_dtype(df["Flock Size"]), "Flock Size should be numeric."
+    
+

@@ -14,7 +14,7 @@ client = bigquery.Client(credentials=credentials, project=credentials.project_id
 
 
 @st.cache_data(ttl=3600)
-def query_table(table_name: str) -> pd.DataFrame:
+def query_table(table_name: str, columns: str = "*") -> pd.DataFrame:
     query = f"SELECT * FROM `sipa-adv-c-arnav-fred.chicken_egg.{table_name}`"
     return client.query(query).to_dataframe(create_bqstorage_client=False)
 

@@ -8,8 +8,6 @@ from plotly.subplots import make_subplots
 import requests
 from .functions_app import (
     prep_bird_flu_data,
-    prep_wild_bird_data,
-    prep_egg_price_data,
     prep_stock_price_data,
 )
 
@@ -49,8 +47,7 @@ def show_price_comparison(egg_df, stock_df, stock_name="Selected Stock"):
 
 # === 2. AVIAN FLU OUTBREAK TRENDS ===
 def show_bird_flu_trends():
-    flu_df = prep_bird_flu_data('bird_flu')
-    flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
+    flu_df = prep_bird_flu_data('bird_flu', group_by_state=False)
 
     # Aggregate daily flock sizes
     daily = flu_df.groupby("Date")["Flock Size"].sum().reset_index()
@@ -68,20 +65,9 @@ def show_bird_flu_trends():
 # === 3. COMBINED OVERVIEW ===
 def show_combined_dashboard():
     
-    #Loading data
-    egg_df = prep_egg_price_data("egg_prices")
+    #Loading data; got rid of egg data for now
     calm_df, _, _ = prep_stock_price_data("calmaine")
-    for col in ["Close_Last", "Open", "High", "Low"]:
-        calm_df[col] = calm_df[col].replace(r'[\$,]', '', regex=True).astype(float)
-    flu_df = prep_bird_flu_data("bird_flu")
-    
-    #prepping birdflu
-    flu_df.rename(columns={"Outbreak Date": "Date"}, inplace=True)
-    flu_df = flu_df.groupby("Date")["Flock Size"].sum().reset_index()
-    flu_df = flu_df.set_index("Date").resample("M").sum().reset_index()
-    
-    # resample stocks
-    calm_df = calm_df.set_index("Date").resample("M").mean().reset_index()
+    flu_df = prep_bird_flu_data("bird_flu", group_by_state=False)
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -98,7 +84,7 @@ def show_combined_dashboard():
     fig.update_layout(
         title="Bird Flu vs Cal-Maine Stock (Monthly Overview)",
         xaxis_title="Date",
-        barmode="overlay",
+        barmode="overlay",  
         height=550,
     )
 
@@ -107,7 +93,7 @@ def show_combined_dashboard():
 
     st.plotly_chart(fig, use_container_width=True)
 
-def show_wild_bird_map(wild_bird_df, bird_flu_df):
+def show_wild_bird_map(wild_grouped, flock_grouped, valid_states):
     """
     Displays a cumulative-progressive map:
     State color = chicken deaths (Sum of Flock Size)
@@ -121,50 +107,39 @@ def show_wild_bird_map(wild_bird_df, bird_flu_df):
     response = requests.get(url)
     geojson = response.json()
 
-    # Normalizar nombres de estado en tus datos
-    wild_df = wild_bird_df.copy()
-    flock_df = bird_flu_df.copy()
-    wild_df["State"] = wild_df["State"].str.title()
-    flock_df["State"] = flock_df["State"].str.title()
+    # creating features for map
+    geojson["features"] = [
+        f for f in geojson["features"]
+        if f["properties"]["NAME"] in valid_states]
 
-    # Filtrar GeoJSON para incluir solo estados en los datasets
-    geojson_states = [f["properties"]["NAME"] for f in geojson["features"]]
-    used_states = set(wild_df["State"].unique()).union(set(flock_df["State"].unique()))
-    valid_states = sorted(set(geojson_states).intersection(used_states))
-    geojson["features"] = [f for f in geojson["features"] if f["properties"]["NAME"] in valid_states]
-
-    # Preparar columnas de mes
-    wild_df['Month'] = pd.to_datetime(wild_df['Date Detected'], errors='coerce').dt.to_period("M").dt.to_timestamp()
-    flock_df['Month'] = pd.to_datetime(flock_df['Outbreak Date'], errors='coerce').dt.to_period("M").dt.to_timestamp()
-
-    # Agrupar por mes y estado
-    wild_grouped = wild_df.groupby(['Month', 'State']).size().reset_index(name='Wild Count')
-    flock_grouped = flock_df.groupby(['Month', 'State']).agg({
-        'Flock Size': 'sum',
-        'lat': 'mean',
-        'lng': 'mean'
-    }).reset_index()
-
-    # Unir ambos
-    merged = pd.merge(flock_grouped, wild_grouped, on=['Month', 'State'], how='left')
+    # Combining dataframes
+    merged = pd.merge(flock_grouped, 
+                      wild_grouped, 
+                      on=['Month', 'State'], 
+                      how='left',
+                      suffixes=('', '_wild')
+    )
+    
     merged['Wild Count'] = merged['Wild Count'].fillna(0)
-    merged['Month_str'] = merged['Month'].dt.strftime("%b %Y")
 
-    # Timeline
-    months_sorted = sorted(merged['Month'].dropna().unique())
-    month_strs = [pd.to_datetime(m).strftime("%b %Y") for m in months_sorted]
+    # Month selector
+    month_options = merged[['Month', 'Month_str']].drop_duplicates().sort_values('Month')
+    month_strs = month_options['Month_str'].tolist()
+    selected_label = st.select_slider(
+        "Progressive Timeline (Cumulative to...)", 
+        options=month_strs, 
+        value=month_strs[-1]
+    )
+    
+    selected_cutoff = pd.to_datetime(selected_label, format='%b %Y')
 
-    selected_label = st.select_slider("🗓️ Progressive Timeline (Cumulative to...)", options=month_strs, value=month_strs[0])
-    selected_cutoff = pd.to_datetime(selected_label)
-
-    # Acumulado hasta la fecha seleccionada
     cumulative_view = merged[merged['Month'] <= selected_cutoff]
 
     if cumulative_view.empty:
         st.info("No data available up to this date.")
         return
 
-    # Agrupar por estado acumulado
+    # Sum by state
     view = cumulative_view.groupby("State").agg({
         "Flock Size": "sum",
         "Wild Count": "sum",
@@ -179,7 +154,7 @@ def show_wild_bird_map(wild_bird_df, bird_flu_df):
         "<br>Flock Deaths: " + view["Flock Size"].astype(int).astype(str)
     )
 
-    # Pintar estados por Flock Size (choropleth)
+    # Flock Size Choropleth (could use county maybe)
     fig = px.choropleth_mapbox(
         view,
         geojson=geojson,
@@ -196,7 +171,7 @@ def show_wild_bird_map(wild_bird_df, bird_flu_df):
         height=600
     )
 
-    # Añadir globos por Wild Count
+    # Add cirlces for Wild Count
     fig.add_scattermapbox(
         lat=view["lat"],
         lon=view["lng"],
@@ -221,7 +196,7 @@ def show_wild_bird_map(wild_bird_df, bird_flu_df):
         legend_title_text="Chicken Deaths (State Color)",
     )
 
-    # Descripción superior
+    # Description
     st.markdown("""
     **Map Explanation**  
     - **State Color**: Number of chickens lost due to outbreaks (Flock Size)  
