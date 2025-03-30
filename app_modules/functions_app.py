@@ -2,18 +2,34 @@ import pandas as pd
 from .helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
 from .query_gbq import query_table
 from google.api_core.exceptions import GoogleAPIError
+import streamlit as st
+
 
 
 # This filepath will be used later for the National Ag. Stats Service API
 #file_path = "https://quickstats.nass.usda.gov/results/AE779404-2B32-375F-B3FE-F48335DE30EC"
 
+@st.cache_data(ttl=3600)
 def prep_wild_bird_data(table_name="wild_birds"):
     """
     Cleans wild bird data and adds geospatial data.
     Returns a df with a 'lat' and 'lng' column for mapping.
     """
     # Load the wild bird data
-    wild_bird_data = query_table(table_name)
+    wild_bird_data = query_table(
+        table_name,
+        columns = "State, County, Date Detected")
+    
+    # Formatting columns
+    wild_bird_data['State'] = wild_bird_data['State'].str.title()
+    
+    # Daily column = 'Date'
+    wild_bird_data['Date'] = pd.to_datetime(
+        wild_bird_data['Date Detected'], errors='coerce'
+        ).dt.to_period("M").dt.to_timestamp()
+
+    # Monthly column = 'Month'
+    wild_bird_data['Month'] = wild_bird_data['Date'].dt.to_period("M").dt.to_timestamp()
 
     # Ensure that required columns exist
     required_columns = {"State", "County"}
@@ -23,67 +39,96 @@ def prep_wild_bird_data(table_name="wild_birds"):
 
     wild_bird_state_abbrev = add_state_abbreviations(wild_bird_data)
     wild_bird_with_fips = merge_with_fips(wild_bird_state_abbrev)
-    wild_bird_geo = merge_with_geolocation(wild_bird_with_fips)    
+    wild_bird_geo = merge_with_geolocation(wild_bird_with_fips)
 
     # Validate that the resulting DataFrame contains 'lat' and 'lng'
     if "lat" not in wild_bird_geo.columns.tolist() or "lng" not in wild_bird_geo.columns.tolist():
-        raise KeyError("Missing required columns: 'lat' and 'lng'")
+        raise KeyError("Missing required columns: 'lat' and 'lng'")   
+    
+    wild_grouped = wild_bird_geo.groupby(['Month', 'State']).size().reset_index(name='Wild Count')
+    wild_grouped['Month_str'] = wild_grouped['Month'].dt.strftime("%b %Y")
 
-    return wild_bird_geo
+    # Extract valid states for filtering geojson
+    valid_states = wild_grouped['State'].unique().tolist() 
 
 
 
-def prep_bird_flu_data(
-    bird_flu_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/prep_data/bird_flu.csv',
-    use_bigquery=True,
-    table_name="bird_flu"
-):
+    return wild_grouped, valid_states
+
+
+@st.cache_data(ttl=3600)
+def prep_bird_flu_data(table_name="bird_flu",
+                       bird_flu_data=None, 
+                       use_bigquery=True,
+                       group_by_state=True): 
     '''
     Loads and cleans bird flu data
-    Returns df with geospatial indicators derived from fips
-    'Flock size' shows how many birds have died
-    lng and lat can be used to place on map
-    Need to add API!! 
+    group_by_state=True indicates function will be used for map
+    Returns either monthly aggregated data or geospatially grouped data by state. 
     '''
-    
+
+    selected_cols = ["Outbreak Date", "Flock Size"]
+    if group_by_state:
+        selected_cols += ["State", "County"]
+
     bird_flu_raw = None
     if use_bigquery:
         try:
-            bird_flu_raw = query_table(table_name)  # Table name must match BigQuery
-            print("✅ Loaded bird flu data from BigQuery.")
+            bird_flu_raw = query_table(table_name, columns=selected_cols)
+            if bird_flu_raw is not None:
+                    bird_flu_raw = bird_flu_raw.copy()        
+                    print("Loaded bird flu data from BigQuery.")
         except GoogleAPIError as e:
-            print(f"⚠️ BigQuery failed: {e}")
+            print(f"BigQuery failed: {e}")
         except Exception as e:
-            print(f"⚠️ Unknown error pulling from BigQuery: {e}")
+            print(f"Unknown error pulling from BigQuery: {e}")
+    
 
     # Read the bird flu data from the provided file or DataFrame
     if bird_flu_raw is None:
-        if isinstance(bird_flu_data, str) or bird_flu_data is None:
-            bird_flu_raw = pd.read_csv(bird_flu_data)
+        if isinstance(bird_flu_data, str):
+            bird_flu_raw = pd.read_csv(bird_flu_data, usecols=selected_cols)
+        elif isinstance(bird_flu_data, pd.DataFrame):
+            bird_flu_raw = bird_flu_data[selected_cols].copy()
         else:
-            bird_flu_raw = bird_flu_data
+            raise ValueError("No data source")
 
-    required_columns = {"State", "County", "Flock Size"}
-    missing_columns = required_columns - set(bird_flu_raw.columns)
+    # Column validation
+    missing_columns = set(selected_cols) - set(bird_flu_raw.columns)
     if missing_columns:
         raise KeyError(f"Missing required columns: {missing_columns}")
-
-        # If input already has 'lat' and 'lng', assume it’s pre-merged; add State Abbrev if needed, then return.
-    if "lat" in bird_flu_raw.columns and "lng" in bird_flu_raw.columns:
-        print("DEBUG: Input DataFrame already has 'lat' and 'lng'. Skipping merge steps.")
-        return bird_flu_raw
     
+    bird_flu_raw["Date"] = pd.to_datetime(bird_flu_raw["Outbreak Date"], errors="coerce")
+
+    # Exit early if not including geospatial data
+    if not group_by_state:
+            return bird_flu_raw.groupby("Date")["Flock Size"].sum().reset_index()
+
+    bird_flu_raw["Month"] = bird_flu_raw["Date"].dt.to_period("M").dt.to_timestamp()
+    bird_flu_raw["Month_str"] = bird_flu_raw["Month"].dt.strftime("%b %Y")
+    bird_flu_raw["State"] = bird_flu_raw["State"].str.title()  
+    
+    # Continuing with geospatial 
     bird_flu_state_abbrev = add_state_abbreviations(bird_flu_raw)
     bird_flu_with_fips = merge_with_fips(bird_flu_state_abbrev)
     bird_flu_geo = merge_with_geolocation(bird_flu_with_fips)
 
-    # Final validation before returning
-    if "lat" not in bird_flu_geo.columns.tolist() or "lng" not in bird_flu_geo.columns.tolist():
+    if "lat" not in bird_flu_geo.columns or "lng" not in bird_flu_geo.columns:
         raise KeyError("Missing required columns: 'lat' and 'lng'")
+    
+    grouped_bird_flu = bird_flu_geo.groupby(["Month", "State"]).agg({
+        "Flock Size": "sum",
+        "lat": "mean",
+        "lng": "mean"
+    }).reset_index()
+    
 
-    # Final version of df
-    return bird_flu_geo
+    month_str_map = bird_flu_raw[["Month", "Month_str"]].drop_duplicates()
+    grouped_bird_flu = grouped_bird_flu.merge(month_str_map, on="Month", how="left")
+    
+    return grouped_bird_flu
 
+@st.cache_data(ttl=3600)
 def prep_egg_price_data(
     egg_price_data='https://raw.githubusercontent.com/advanced-computing/chicken_egg/main/app_data/egg_price_monthly.csv',
     use_bigquery=True,
@@ -97,12 +142,13 @@ def prep_egg_price_data(
     df = None
     if use_bigquery:
         try:
-            df = query_table(table_name)
-            print("✅ Loaded egg price data from BigQuery.")
+            df = query_table(table_name, columns = ["Date", "Avg_Price"])
+            print("Loaded egg price data from BigQuery.")
         except GoogleAPIError as e:
-            print(f"⚠️ BigQuery failed: {e}")
+            print(f" BigQuery failed: {e}")
             raise
-    else:
+    
+    if df is None:
         df = pd.read_csv(egg_price_data)
 
     # Convert 'Date' column to datetime format
@@ -114,8 +160,8 @@ def prep_egg_price_data(
 
     return df
 
+@st.cache_data(ttl=3600)
 def prep_stock_price_data(
-    stock_price_data = None,
     use_bigquery=True,
     table_names=["calmaine", "vitl", "post"]):
     '''
@@ -131,22 +177,36 @@ def prep_stock_price_data(
     for name in table_names:
         try:
             df = query_table(name)
-            print(f"✅ Loaded stock price data for '{name}' from BigQuery.")
+            print(f"Loaded stock price data for '{name}' from BigQuery.")
         except GoogleAPIError as e:
-            print(f"⚠️ BigQuery failed for '{name}': {e}")
+            print(f"BigQuery failed for '{name}': {e}")
             raise  
 
-    # Validate that 'Close_Last' exists
+        # Validate that 'Close_Last' exists
         required_columns = {'Close_Last'}
         missing_columns = required_columns - set(df.columns)
         if missing_columns:
             raise KeyError(f"Table '{name}' is missing required columns: {missing_columns}")
 
-    
+        # formatting dates
         df['Date'] = pd.to_datetime(df['Date'], format = '%m/%d/%Y')
-                    
-    # Date set to index to resample
         df.sort_values('Date', inplace=True)
+        
+        # resampling prior to loading
+        df = df.set_index("Date").resample("M").mean(numeric_only=True).reset_index()        
+        
         processed_dfs[name] = df
     
     return processed_dfs["calmaine"], processed_dfs["vitl"], processed_dfs["post"]
+
+
+if __name__ == "__main__":
+    import pandas as pd
+
+    # Test bird flu data
+    bird_df = prep_bird_flu_data(table_name="bird_flu")
+    print("📊 bird_df columns:", bird_df.columns)
+
+    # Test wild bird data
+    wild_df, _ = prep_wild_bird_data(table_name="wild_birds")
+    print("🦅 wild_df columns:", wild_df.columns)

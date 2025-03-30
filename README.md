@@ -42,6 +42,9 @@ Data
 [x] compile data onto two dataframes: one for time-series/national data and the other for geographical data
 [x] add geospatial data for visualizations
 [x] clean Cal-Main food price data
+[] Need to incorporate county data into cloropleth
+[] Add egg data into combined dashboard. Secondary dashboard underneath?
+[] Store valid states as a literal somewhere
 
 # Code Organization (what else can be refactored?)
 [x] seperate main for app

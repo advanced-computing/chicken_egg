@@ -95,12 +95,12 @@ def render_tab1_project_proposal():
 
 # === TAB 2 ===
 def render_tab2_bird_flu():
-    wild_bird_geo = prep_wild_bird_data("wild_birds")
-    bird_data = prep_bird_flu_data("bird_flu")
+    wild_grouped, valid_states = prep_wild_bird_data("wild_birds")
+    bird_data = prep_bird_flu_data("bird_flu", group_by_state = True)
 
     total_chicken_deaths = bird_data['Flock Size'].sum()
-    total_wild_bird_infections = len(wild_bird_geo)
-    latest_date_str = wild_bird_geo['Date Detected'].max().strftime('%B %d, %Y')
+    total_wild_bird_infections = wild_grouped['Wild Count'].sum()
+    latest_date_str = wild_grouped.sort_values('Month')['Month_str'].iloc[-1]
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Cumulative Chicken Deaths", f"{total_chicken_deaths:,}")
@@ -111,7 +111,7 @@ def render_tab2_bird_flu():
     show_bird_flu_trends()
 
     st.subheader("Wild Bird Infections Map")
-    show_wild_bird_map(wild_bird_geo, bird_data)
+    show_wild_bird_map(wild_grouped, bird_data, valid_states)
 
 # === TAB 3 ===
 def render_tab3_egg_stocks():
