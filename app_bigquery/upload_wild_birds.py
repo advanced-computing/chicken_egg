@@ -1,4 +1,4 @@
-# wild bird
+# wild bird function
 
 import pandas as pd
 from google.cloud import bigquery

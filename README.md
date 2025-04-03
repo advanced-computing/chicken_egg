@@ -38,6 +38,7 @@ Data
 [] set up API for VITL data
 [] set up API for egg prices from BLS (clickable link)
 [] set up API for Wild Bird data
+[] find additional dataset for consumption that can be used to calculate demand elasticity over time at the national level
 [x] compile data onto two dataframes: one for time-series/national data and the other for geographical data
 [x] add geospatial data for visualizations
 [x] clean Cal-Main food price data
@@ -59,7 +60,7 @@ Data
 [] update test_helper_viz.py with examples?
 [x] fix references in prep_bird_data
 [] Write test cases for visualizations and prep_wild_bird_data()
-[] refactor prep_stock_data to work with validation and csv file inputs (or wait until database?)
+[] refactor prep_stock_data to work with validation and csv file inputs (wait until database)
 
 # Visualizations
 [x] Add st.metric

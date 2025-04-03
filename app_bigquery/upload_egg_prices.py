@@ -1,4 +1,4 @@
-# egg prices
+# egg prices function
 
 import pandas as pd
 from google.cloud import bigquery

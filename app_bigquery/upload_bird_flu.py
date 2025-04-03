@@ -1,4 +1,4 @@
-# bird flu
+# bird flu function
 
 import pandas as pd
 from google.cloud import bigquery

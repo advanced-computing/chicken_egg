@@ -44,4 +44,4 @@ def upload_stock_prices_data(project_id: str, stock_file: str, table_name: str):
         print("Schema mismatch detected. Replacing table instead...")
         to_gbq(df, full_table_id, project_id=project_id, if_exists="replace")
         print(f"Replaced table and uploaded {len(df)} records.")
-    print(f" Uploaded {len(df)} records to BigQuery.")
+    print(f"Uploaded {len(df)} records to BigQuery.")
