@@ -25,20 +25,19 @@ Current insights:
 
 Issues
 [] No data for local egg prices
-[] No data for local 
-[] resampling for stock data; need to revisit
-[] remove extra line on time series graph for Cal-Maine price
-[] how to use beautiful soup for API 
+[x] resampling for stock data; need to revisit
+[x] remove extra line on time series graph for Cal-Maine price
+[x] how to use beautiful soup for API (resolved)
 
 Data
-[] Organize data into a folder? (Temporary until APIs ready, may not be worth it)
-[] set up API for Bird Flu data (clickable link)
+[x] Organize data into a folder? (Temporary until APIs ready, may not be worth it)
+[x] set up API for Bird Flu data (clickable link)
+    - will wait for the other APIs until it's clear how it is integrated into AirFlow
 [] set up API for Cal-Main data (clickable link)
 [] set up API for POST data
-[] set up API for 
+[] set up API for VITL data
 [] set up API for egg prices from BLS (clickable link)
-[] set up API for National Agricultural Statistics Service (REST API) Keep? Integrate?
-[] find additional dataset for consumption that can be used to calculate demand elasticity over time at the national level
+[] set up API for Wild Bird data
 [x] compile data onto two dataframes: one for time-series/national data and the other for geographical data
 [x] add geospatial data for visualizations
 [x] clean Cal-Main food price data
@@ -55,31 +54,29 @@ Data
     - see if numbers are numerical
     - check for invalid data values in cols
 [x] test cases
-[] move streamlit functions to seperate module
-[] create new module for adding geospatial data
+[x] move streamlit functions to seperate module
+[x] create new module for adding geospatial data
 [] update test_helper_viz.py with examples?
-[] fix references in prep_bird_data
+[x] fix references in prep_bird_data
 [] Write test cases for visualizations and prep_wild_bird_data()
 [] refactor prep_stock_data to work with validation and csv file inputs (or wait until database?)
 
 # Visualizations
-[] Add st.metric
-    [] current stock prices
-    [] current egg prices
-    [] stock prices compared to two months after bird flu (incorporating lag) for % increase
-    [] same for eggs
+[x] Add st.metric
+    [x] current stock prices
+    [x] current egg prices
 [x] Create time series data plotting egg prices, stock price
 [x] resample time series to monthly
 [x] add second y axis for stock prices
 [x] fix x axis for the time series plot
 [x] Create US map with bird flu (modify to streamlit plot?) 
-[] Add slider that allow for different time periods on both graphs
-[] add additional stock data to X axis
-[] add additional layers to map data
-    [x] created separate map for now, may try merging into one df later
+[x] Add slider that allow for different time periods on map
+[x] add additional stock data to X axis
+[x] add additional layers to map data
 [] fix the latest date detected column to take the column as datetime and return the latest date
     - currently it does a string comparison
 [] What other elements to add to map?
+[] Add correlation map w/ egg prices and different stocks (scatter or regression)
 
 Other Considerations
 [] Which states are key egg producing states

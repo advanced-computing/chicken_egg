@@ -19,20 +19,20 @@ def upload_egg_prices_data(project_id: str):
 
     try:
         client.get_table(full_table_id)
-        print(f"✅ Table '{full_table_id}' already exists.")
+        print(f"Table '{full_table_id}' already exists.")
     except Exception:
         table = bigquery.Table(full_table_id, schema=schema)
         client.create_table(table)
-        print(f"📦 Table '{full_table_id}' created.")
+        print(f"Table '{full_table_id}' created.")
 
     df = pd.read_csv(csv_path)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     try:
-        print(f"📤 Trying to append to table: {full_table_id}")
+        print(f"Trying to append to table: {full_table_id}")
         to_gbq(df, full_table_id, project_id=project_id, if_exists="append")
-        print(f"✅ Appended {len(df)} records to BigQuery.")
-    except gbq.InvalidSchema as e:
-        print("⚠️ Schema mismatch detected. Replacing table instead...")
+        print(f"Appended {len(df)} records to BigQuery.")
+    except gbq.InvalidSchema:
+        print("Schema mismatch detected. Replacing table instead...")
         to_gbq(df, full_table_id, project_id=project_id, if_exists="replace")
-        print(f"✅ Replaced table and uploaded {len(df)} records.")
-    print(f"✅ Uploaded {len(df)} records to BigQuery.")
+        print(f"Replaced table and uploaded {len(df)} records.")
+    print(f"Uploaded {len(df)} records to BigQuery.")
