@@ -1,4 +1,5 @@
-import pytest
+# testing visualizations
+
 import pandas as pd
 from app_modules.visualizations_app import create_geospatial, create_time_series
 

@@ -1,7 +1,5 @@
 # upload_to_bigquery.py
-#
 
-import os
 import pandas as pd
 from pandas_gbq import to_gbq
 from google.cloud import bigquery

@@ -204,4 +204,8 @@ service_account.json
 .streamlit/secrets.toml
 
 
+# Airflow logs and database
+airflow_home/logs/
+airflow_home/airflow.db
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,python
