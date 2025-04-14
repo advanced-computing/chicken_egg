@@ -20,6 +20,8 @@ Data
 [] Need to incorporate county data into cloropleth
 [] Add egg data into combined dashboard. Secondary dashboard underneath?
 [] Store valid states as a literal somewhere
+[] Upload fips to Big Query
+[] fix fips matching for NaN fips values
 
 # Code Organization (what else can be refactored?)
 [x] seperate main for app

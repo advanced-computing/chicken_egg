@@ -39,3 +39,22 @@ def merge_with_geolocation(df, geolocator_path = 'https://raw.githubusercontent.
     geodata["cfips"] = geodata["cfips"].astype(str)
     df_geo = pd.merge(df, geodata, left_on="fips", right_on="cfips", how="left")
     return df_geo.drop(columns=["cfips", "name"])
+
+# Isolating logic to check for geospatial columns
+def has_geospatial_columns(df):
+    return all(col in df.columns for col in ["fips", "lat", "lng"])
+
+# Removes redundant prep from dataframes used for maps 
+def ensure_geospatial(df, source_name="data"):
+    if has_geospatial_columns(df):
+        print(f"Using provided geospatial data for {source_name}")
+        return df
+    else:
+        print(f"Enriching {source_name} with fips/lat/lng")
+        df = add_state_abbreviations(df)
+        
+        if "County" in df.columns:
+            df = merge_with_fips(df)
+
+        df = merge_with_geolocation(df)
+        return df
