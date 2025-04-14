@@ -3,6 +3,8 @@
 import pandas as pd
 from google.cloud import bigquery
 from pandas_gbq import to_gbq, gbq
+import streamlit as st
+from google.oauth2 import service_account
 
 def upload_stock_prices_data(project_id: str, stock_file: str, table_name: str):
     dataset_id = "chicken_egg"
@@ -17,8 +19,12 @@ def upload_stock_prices_data(project_id: str, stock_file: str, table_name: str):
         bigquery.SchemaField("Close_Last", "FLOAT"),
         bigquery.SchemaField("Volume", "INTEGER")
     ]
+    
+    credentials = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"]
+    )
 
-    client = bigquery.Client(project=project_id)
+    client = bigquery.Client(project=project_id, credentials=credentials)
 
     try:
         client.get_table(full_table_id)
@@ -35,9 +41,29 @@ def upload_stock_prices_data(project_id: str, stock_file: str, table_name: str):
             df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df.rename(columns={"Close/Last": "Close_Last"}, inplace=True)
+    df = df[["Date", "Open", "High", "Low", "Close_Last", "Volume"]]
 
+    
+    
+        # --- Incremental Loading ---
+    # Query the maximum date already in the table.
     try:
-        print(f"Trying to append to table: {full_table_id}")
+        query = f"SELECT MAX(Date) as max_date FROM `{full_table_id}`"
+        result_df = client.query(query).to_dataframe()
+        max_date = result_df["max_date"].iloc[0]
+        if pd.notnull(max_date):
+            max_date = pd.to_datetime(max_date)
+            before_filtering = len(df)
+            df = df[df["Date"] > max_date]
+            print(f"Found max date in table: {max_date}. Filtered out {before_filtering - len(df)} old records.")
+        else:
+            print("No previous records found.")
+    except Exception as e:
+        print("Error checking for existing records, will attempt to append all:", e)
+
+    
+    try:
+        print(f"Trying to append: {len(df)} records to table: {full_table_id}")
         to_gbq(df, full_table_id, project_id=project_id, if_exists="append")
         print(f"Appended {len(df)} records to BigQuery.")
     except gbq.InvalidSchema:

@@ -3,7 +3,8 @@ from app_modules.visualizations_app import (
     show_price_comparison,
     show_bird_flu_trends,
     show_combined_dashboard,
-    show_wild_bird_map
+    show_wild_bird_map,
+    show_flock_county_choropleth
 )
 from app_modules.functions_app import (
     prep_bird_flu_data,
@@ -96,9 +97,12 @@ def render_tab1_project_proposal():
 # === TAB 2 ===
 def render_tab2_bird_flu():
     wild_grouped, valid_states = prep_wild_bird_data("wild_birds")
-    bird_data = prep_bird_flu_data("bird_flu", group_by_state = True)
+    
+    bird_data_state = prep_bird_flu_data("bird_flu", group_by = 'state')
+    
+    bird_data_county = prep_bird_flu_data("bird_flu", group_by="county")
 
-    total_chicken_deaths = bird_data['Flock Size'].sum()
+    total_chicken_deaths = bird_data_state['Flock Size'].sum()
     total_wild_bird_infections = wild_grouped['Wild Count'].sum()
     latest_date_str = wild_grouped.sort_values('Month')['Month_str'].iloc[-1]
 
@@ -111,7 +115,10 @@ def render_tab2_bird_flu():
     show_bird_flu_trends()
 
     st.subheader("Wild Bird Infections Map")
-    show_wild_bird_map(wild_grouped, bird_data, valid_states)
+    show_wild_bird_map(wild_grouped, bird_data_state, valid_states)
+    
+    st.subheader("Bird Flu County Level Data")
+    show_flock_county_choropleth(bird_data_county)
 
 # === TAB 3 ===
 def render_tab3_egg_stocks():

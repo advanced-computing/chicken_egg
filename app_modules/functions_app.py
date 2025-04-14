@@ -1,9 +1,10 @@
 import pandas as pd
-from .helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation
+from .helper_modules.geodata import add_state_abbreviations, merge_with_fips, merge_with_geolocation, has_geospatial_columns, ensure_geospatial
 from .query_gbq import query_table
 from google.api_core.exceptions import GoogleAPIError
 import streamlit as st
 
+REQUIRED_GEO_COLS = ["fips", "lat", "lng"]
 
 
 # This filepath will be used later for the National Ag. Stats Service API
@@ -18,7 +19,7 @@ def prep_wild_bird_data(table_name="wild_birds"):
     # Load the wild bird data
     wild_bird_data = query_table(
         table_name,
-        columns = "State, County, Date Detected")
+        columns = ["State", "County", "Date Detected", "Bird Species"])
     
     # Formatting columns
     wild_bird_data['State'] = wild_bird_data['State'].str.title()
@@ -37,9 +38,8 @@ def prep_wild_bird_data(table_name="wild_birds"):
     if missing_columns:
         raise KeyError(f"Missing required columns: {missing_columns}")
 
-    wild_bird_state_abbrev = add_state_abbreviations(wild_bird_data)
-    wild_bird_with_fips = merge_with_fips(wild_bird_state_abbrev)
-    wild_bird_geo = merge_with_geolocation(wild_bird_with_fips)
+    wild_bird_geo = ensure_geospatial(wild_bird_data, source_name="wild_birds")
+
 
     # Validate that the resulting DataFrame contains 'lat' and 'lng'
     if "lat" not in wild_bird_geo.columns.tolist() or "lng" not in wild_bird_geo.columns.tolist():
@@ -60,7 +60,7 @@ def prep_wild_bird_data(table_name="wild_birds"):
 def prep_bird_flu_data(table_name="bird_flu",
                        bird_flu_data=None, 
                        use_bigquery=True,
-                       group_by_state=True): 
+                       group_by="state"): 
     '''
     Loads and cleans bird flu data
     group_by_state=True indicates function will be used for map
@@ -68,8 +68,10 @@ def prep_bird_flu_data(table_name="bird_flu",
     '''
 
     selected_cols = ["Outbreak Date", "Flock Size"]
-    if group_by_state:
-        selected_cols += ["State", "County"]
+    if group_by == "state":
+        selected_cols += ["State", "lat", "lng"]
+    if group_by == "county":
+        selected_cols += ["State", "County", "fips", "lat", "lng"]
 
     bird_flu_raw = None
     if use_bigquery:
@@ -101,22 +103,41 @@ def prep_bird_flu_data(table_name="bird_flu",
     bird_flu_raw["Date"] = pd.to_datetime(bird_flu_raw["Outbreak Date"], errors="coerce")
 
     # Exit early if not including geospatial data
-    if not group_by_state:
+    if group_by == "none":
             return bird_flu_raw.groupby("Date")["Flock Size"].sum().reset_index()
 
     bird_flu_raw["Month"] = bird_flu_raw["Date"].dt.to_period("M").dt.to_timestamp()
     bird_flu_raw["Month_str"] = bird_flu_raw["Month"].dt.strftime("%b %Y")
-    bird_flu_raw["State"] = bird_flu_raw["State"].str.title()  
+    if "State" in bird_flu_raw.columns:
+        bird_flu_raw["State"] = bird_flu_raw["State"].str.title()
+    if "County" in bird_flu_raw.columns:  
+        bird_flu_raw["County"] = bird_flu_raw["County"].str.title()
+
     
-    # Continuing with geospatial 
-    bird_flu_state_abbrev = add_state_abbreviations(bird_flu_raw)
-    bird_flu_with_fips = merge_with_fips(bird_flu_state_abbrev)
-    bird_flu_geo = merge_with_geolocation(bird_flu_with_fips)
+    # skipping geospatial if cols already present
+    if "County" in bird_flu_raw.columns:
+        bird_flu_geo = ensure_geospatial(bird_flu_raw, source_name="bird_flu")
+    else:
+        print("Skipping ensure_geospatial — no 'County' column in data")
+        bird_flu_geo = bird_flu_raw.copy()
+
 
     if "lat" not in bird_flu_geo.columns or "lng" not in bird_flu_geo.columns:
         raise KeyError("Missing required columns: 'lat' and 'lng'")
     
-    grouped_bird_flu = bird_flu_geo.groupby(["Month", "State"]).agg({
+    # Ensure lat/lng are numeric for aggregation
+    bird_flu_geo["lat"] = pd.to_numeric(bird_flu_geo["lat"], errors="coerce")
+    bird_flu_geo["lng"] = pd.to_numeric(bird_flu_geo["lng"], errors="coerce")
+
+    
+    if group_by == "state":
+        group_fields = ["Month", "State"]
+    elif group_by == "county":
+        group_fields = ["Month", "State", "County", "fips"]
+    else:
+        raise ValueError("group_by must be either 'state' or 'county'")
+
+    grouped_bird_flu = bird_flu_geo.groupby(group_fields).agg({
         "Flock Size": "sum",
         "lat": "mean",
         "lng": "mean"
@@ -176,7 +197,7 @@ def prep_stock_price_data(
     
     for name in table_names:
         try:
-            df = query_table(name)
+            df = query_table(name, columns = ["Date", "Close_Last"])
             print(f"Loaded stock price data for '{name}' from BigQuery.")
         except GoogleAPIError as e:
             print(f"BigQuery failed for '{name}': {e}")

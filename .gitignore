@@ -6,6 +6,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+app_modules/**/__pycache__/
+app_bigquery/**/__pycache__/
+*.pyc
 
 # C extensions
 *.so
