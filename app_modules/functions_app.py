@@ -21,7 +21,7 @@ def prep_wild_bird_data(table_name="wild_birds"):
         table_name,
         columns = ["State", "County", "Date Detected", "Bird Species"])
     
-    # Formatting columns
+    # Formatting columns (GET RID OF THIS)
     wild_bird_data['State'] = wild_bird_data['State'].str.title()
     
     # Daily column = 'Date'
@@ -189,7 +189,7 @@ def prep_stock_price_data(
     Loads and cleans stock data
     returns df that can be used for time-sereis viz
     Note: data is daily
-    Please use 'Close/Last' for timeseries
+    Please use 'Close_Last' for timeseries
     '''
 
 
