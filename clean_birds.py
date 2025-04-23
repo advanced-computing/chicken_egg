@@ -25,8 +25,7 @@ def clean_bird_flu_data():
     df = merge_with_fips(df)
     df = merge_with_geolocation(df)
 
-
-    return df
+    df.to_csv("cleaned_bird_flu.csv")
 
 # Optional for standalone testing
 if __name__ == "__main__":
