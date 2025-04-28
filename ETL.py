@@ -10,26 +10,26 @@ def main():
     print("Starting ETL process…")
 
     print("Cleaning bird-flu (commercial) data…")
-    # should read CDC page, clean and write to app_data/prep_data/bird_flu_daily.csv
+    # should read CDC page, clean and write to app_data/bird_flu.csv
     clean_bird_flu_data()
 
     print("Cleaning egg-price data…")
-    # should read the FRED/GitHub CSV, clean and write to app_data/prep_data/egg_price_monthly.csv
+    # should read the FRED/GitHub CSV, clean and write to app_data/cleaned_egg_prices.csv
     clean_egg_price_data()
 
     print("Cleaning stock-price data…")
     # should pull CALM, POST, VITL, clean and write to
-    #   app_data/prep_data/{calmaine,post,vitl}_prices_daily.csv
+    #   app_data/{calmaine,post,vitl}_stock.csv
     fetch_stock_data()
 
     print("Cleaning wild-bird HPAI data…")
-    # should read the USDA/Socrata feed, clean and write to app_data/prep_data/wild_birds.csv
+    # Not live data connection
     clean_wild_birds()
 
     print("All cleaning done. Now uploading to BigQuery…")
     upload_to_bigquery()
 
-    print("🎉 ETL complete.")
+    print("ETL complete.")
 
 if __name__ == "__main__":
     main()
