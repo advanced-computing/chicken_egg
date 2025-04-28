@@ -9,7 +9,7 @@ from pandas_gbq import to_gbq, gbq
 def upload_bird_flu_data(project_id: str):
     dataset_id = "chicken_egg"
     table_name = "bird_flu"
-    csv_path = "app_data/bird_flu_daily.csv"
+    csv_path = "app_data/bird_flu.csv"
     full_table_id = f"{project_id}.{dataset_id}.{table_name}"
 
     schema = [

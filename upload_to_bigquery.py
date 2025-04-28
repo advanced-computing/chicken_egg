@@ -23,9 +23,9 @@ def main():
     
     # Para cargar datos de stock prices
     stock_files = {
-        "calmaine": "app_data/calmaine_prices_daily.csv",
-        "post": "app_data/post_prices_daily.csv",
-        "vitl": "app_data/vitl_prices_daily.csv"
+        "calmaine": "app_data/calmaine_stock.csv",
+        "post": "app_data/post_stock.csv",
+        "vitl": "app_data/vitl_stock.csv"
     }
     
     for stock_name, stock_file in stock_files.items():
