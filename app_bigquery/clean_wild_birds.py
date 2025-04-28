@@ -2,8 +2,8 @@ import os
 import pandas as pd
 
 def clean_wild_birds(
-    input_csv: str,
-    output_csv: str
+    input_csv: str  = "app_data/prep_data/wild_birds_raw.csv",
+    output_csv: str = "app_data/prep_data/wild_birds.csv"
 ):
  
     # 1) Load
@@ -35,6 +35,6 @@ def clean_wild_birds(
 # Example usage:
 if __name__ == "__main__":
     clean_wild_birds(
-        input_csv="wild_birds_raw.csv",
+        input_csv="app_data/prep_data/wild_birds_raw.csv",
         output_csv="app_data/prep_data/wild_birds.csv"
     )
