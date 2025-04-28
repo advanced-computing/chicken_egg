@@ -20,7 +20,9 @@ def main():
     print("Cleaning stock-price data…")
     # should pull CALM, POST, VITL, clean and write to
     #   app_data/{calmaine,post,vitl}_stock.csv
-    fetch_stock_data()
+    fetch_stock_data("CALM", "calmaine_stock.csv")
+    fetch_stock_data("VITL", "vitl_stock.csv")
+    fetch_stock_data("POST", "post_stock.csv")
 
     print("Cleaning wild-bird HPAI data…")
     # Not live data connection
