@@ -31,10 +31,13 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Show first lines of JSON
+        run: |
+            head -n 5 service_account.json
+
     # This part is different from the other yml file
       - name: Decode GCP service account key
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT }}" > service_account.json
+        run: echo "${{ secrets.GCP_SERVICE_ACCOUNT }}" > service_account.json
 
       - name: Run ETL
         run: |
