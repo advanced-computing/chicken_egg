@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import requests
 from datetime import datetime
@@ -54,7 +55,14 @@ def fetch_stock_data(symbol: str, save_as: str):
         )
 
     df.sort_values("Date", inplace=True)
-    df.to_csv(save_as, index=False)
+    
+    out_dir = "app_data"
+    os.makedirs(out_dir, exist_ok=True)
+    
+    out_path = os.path.join(out_dir, save_as)
+    
+    df.to_csv(out_path, index=False)
+    print(f"{symbol} data saved to {out_path}")
 
 # Example
 if __name__ == "__main__":
