@@ -14,6 +14,7 @@ jobs:
 
     env:
       GOOGLE_APPLICATION_CREDENTIALS: service_account.json
+      GCP_PROJECT_ID: sipa-adv-c-arnav-fred
 
     steps:
       - name: Clone repository
