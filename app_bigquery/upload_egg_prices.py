@@ -1,9 +1,8 @@
 # egg prices function
-
+import os
 import pandas as pd
 from google.cloud import bigquery
 from pandas_gbq import to_gbq, gbq
-import streamlit as st
 from google.oauth2 import service_account
 
 def upload_egg_prices_data(project_id: str):
@@ -17,11 +16,11 @@ def upload_egg_prices_data(project_id: str):
         bigquery.SchemaField("Avg_Price", "FLOAT")
     ]
     
-    credentials = service_account.Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"]
-    )
-
-    client = bigquery.Client(project=project_id, credentials=credentials)
+     # load the JSON key from the env var
+    creds = service_account.Credentials.from_service_account_file(
+         os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+     )
+    client = bigquery.Client(project=project_id, credentials=creds)
 
     try:
         client.get_table(full_table_id)
