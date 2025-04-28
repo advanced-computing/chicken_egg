@@ -35,11 +35,10 @@ def upload_stock_prices_data(project_id: str, stock_file: str, table_name: str):
 
     df = pd.read_csv(csv_path)
     # Clean "$" if present
-    for col in ["Open", "High", "Low", "Close/Last"]:
+    for col in ["Open", "High", "Low", "Close_Last"]:
         if df[col].dtype == object:
             df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    df.rename(columns={"Close/Last": "Close_Last"}, inplace=True)
     df = df[["Date", "Open", "High", "Low", "Close_Last", "Volume"]]
 
     
