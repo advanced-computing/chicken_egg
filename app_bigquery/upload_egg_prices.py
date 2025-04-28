@@ -9,7 +9,7 @@ from google.oauth2 import service_account
 def upload_egg_prices_data(project_id: str):
     dataset_id = "chicken_egg"
     table_name = "egg_prices"
-    csv_path = "app_data/egg_price_monthly.csv"
+    csv_path = "app_data/cleaned_egg_prices.csv"
     full_table_id = f"{project_id}.{dataset_id}.{table_name}"
 
     schema = [
