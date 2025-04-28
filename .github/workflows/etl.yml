@@ -32,13 +32,13 @@ jobs:
           pip install -r requirements.txt
 
     # This part is different from the other yml file
-      - name: Decode GCP service account key
-        run: echo "${{ secrets.GCP_SERVICE_ACCOUNT }}" > service_account.json
+      - name: write service_account.json
+        run: echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > service_account.json
 
       - name: Verify service_account.json
         run: |
           echo "---- service_account.json ----"
-          cat service_account.json
+          head -n 5 service_account.json
           echo "---------------------------------------"
 
       - name: Run ETL
