@@ -140,6 +140,40 @@ def render_tab3_egg_stocks():
 def render_tab4_dashboard():
     show_combined_dashboard()
 
+st.markdown("---")
+    st.header("Key Insights from Combined Data")
+
+    st.subheader("1. Avian Flu Outbreaks Coincide with Stock Price Spikes")
+    st.markdown("""
+    During major bird flu outbreaks—especially in 2022 and early 2023—**Cal-Maine's stock price surged** while overall flock populations plummeted.  
+    This suggests that market expectations around egg shortages or reduced supply **benefit industry leaders financially**, despite the biological crisis.
+    """)
+
+    st.subheader("2. Egg Prices React to Supply Shocks, but with Lag")
+    st.markdown("""
+    Egg prices increased sharply following large-scale flock deaths, but **not always immediately**.  
+    This indicates that **market pricing mechanisms adjust with a lag**, possibly due to production contracts or delayed retail reactions.
+    """)
+
+    st.subheader("3. Vital Farms Stock Less Sensitive to Flu Shocks")
+    st.markdown("""
+    Compared to Cal-Maine or Post Holdings, **Vital Farms stock showed less volatility** during avian flu peaks.  
+    This supports the idea that **specialty or pasture-raised brands are less exposed** to large-scale outbreaks in commercial flocks.
+    """)
+
+    st.subheader("4. Correlations Suggest Speculative Market Behavior")
+    st.markdown("""
+    Some of the stock movements appear **disproportionate to real production losses**, hinting at speculation.  
+    Investors may respond to **news cycles rather than just fundamentals**, a key insight for market risk analysis.
+    """)
+
+    st.subheader("5. Volatility Is Concentrated Around Seasonal Transitions")
+    st.markdown("""
+    Sharp movements in prices and stock returns tend to cluster around **late winter and early spring**,  
+    likely linked to seasonal demand changes, policy updates, or flu transmission cycles.  
+    Future forecasting models should factor in **time-of-year effects**.
+    """)
+
 # === TAB 5 ===
 def render_tab5_appendix():
     st.title("📚 Appendix")
