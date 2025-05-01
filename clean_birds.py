@@ -1,4 +1,3 @@
-from app_data.web_scraping.download_csv import download_csv
 from app_modules.helper_modules.geodata import (
     add_state_abbreviations,
     merge_with_fips,

@@ -140,7 +140,7 @@ def render_tab3_egg_stocks():
 def render_tab4_dashboard():
     show_combined_dashboard()
 
-st.markdown("---")
+    st.markdown("---")
     st.header("Key Insights from Combined Data")
 
     st.subheader("1. Avian Flu Outbreaks Coincide with Stock Price Spikes")
